@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/macro-roller/static/css/main.964fdded.css",
+    "main.js": "/macro-roller/static/js/main.47364cbe.js",
+    "static/js/787.9fdac3f3.chunk.js": "/macro-roller/static/js/787.9fdac3f3.chunk.js",
+    "index.html": "/macro-roller/index.html",
+    "main.964fdded.css.map": "/macro-roller/static/css/main.964fdded.css.map",
+    "main.47364cbe.js.map": "/macro-roller/static/js/main.47364cbe.js.map",
+    "787.9fdac3f3.chunk.js.map": "/macro-roller/static/js/787.9fdac3f3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.964fdded.css",
+    "static/js/main.47364cbe.js"
+  ]
+}
