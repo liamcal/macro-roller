@@ -1,26 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import { useLocalStorage } from './hooks';
+import { parseMacro } from './utils/macroUtils';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [macro, setMacro] = useLocalStorage('macro-roller-macro', '');
+    const [parsedMacro, setParsedMacro] = useState('');
+
+    const handleTextAreaChange = (
+        event: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        setMacro(event.target.value);
+    };
+
+    const handleRunButtonClick = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        setParsedMacro(parseMacro(macro));
+    };
+
+    useEffect(() => {
+        console.log({ macro });
+    }, [macro]);
+
+    return (
+        <div className="App">
+            <h1>Macro Roller</h1>
+            <div>
+                <textarea
+                    value={macro}
+                    onChange={handleTextAreaChange}
+                    cols={40}
+                    rows={10}
+                />
+            </div>
+            <div>
+                <button onClick={handleRunButtonClick}>Run Macro</button>
+            </div>
+            {parsedMacro && (
+                <p style={{ whiteSpace: 'pre-line' }}>{parsedMacro}</p>
+            )}
+        </div>
+    );
 }
 
 export default App;
