@@ -1,4 +1,4 @@
-import { parseMacro } from './macroUtils';
+import { MacroQuery, parseMacro, QueryLookup } from './macroUtils';
 
 describe('parseMacro', () => {
     beforeEach(() => {
@@ -39,4 +39,12 @@ describe('parseMacro', () => {
             expect(parseMacro(macro)).toEqual(expected);
         }
     );
+
+    it('should inject query values', () => {
+        const queryValues: QueryLookup = {
+            atk: { queryId: 'atk', value: '10' },
+        };
+        const macro = 'Hello, ?{atk|5} World! [[d6 + ?{atk}]]';
+        expect(parseMacro(macro, queryValues)).toEqual('Hello, 10 World! 14');
+    });
 });
