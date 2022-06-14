@@ -1,4 +1,5 @@
 import { evaluate } from 'mathjs';
+import { Macro, MacroQuery, QueryLookup } from '../types';
 
 const rollReplacer = (match: string, ...args: any) => {
     const maxValue = parseInt(match.slice(1));
@@ -19,9 +20,9 @@ const queryReplacer =
 
 const queryRegex = /\?\{(?<queryId>.*?)(?:\|(?<defaultValue>[0-9]+))?\}/g;
 
-const extractQueries = (macro: string): QueryLookup => {
+const extractQueries = (content: string): QueryLookup => {
     // Cast twice here to convinve typescript that the queryId really will be present
-    const matchGroups = Array.from(macro.matchAll(queryRegex)).map(
+    const matchGroups = Array.from(content.matchAll(queryRegex)).map(
         (match) => match.groups
     ) as Partial<MacroQuery>[];
 
@@ -40,19 +41,10 @@ const extractQueries = (macro: string): QueryLookup => {
     );
 };
 
-const parseMacro = (macro: string, queries: QueryLookup = {}) => {
-    return macro
-        .replaceAll(queryRegex, queryReplacer(queries))
+const parseMacro = (macro: Macro) => {
+    return macro.content
+        .replaceAll(queryRegex, queryReplacer(macro.queries))
         .replaceAll(/\[\[(.*?)\]\]/g, expressionReplacer);
 };
 
-export type QueryLookup = {
-    [k: string]: MacroQuery;
-};
-
-export interface MacroQuery {
-    queryId: string;
-    defaultValue?: string;
-    value?: string;
-}
 export { parseMacro, extractQueries };

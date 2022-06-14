@@ -1,2 +1,2 @@
-import { useLocalStorage } from './useLocalStorage';
-export { useLocalStorage };
+export { useLocalStorage } from './useLocalStorage';
+export { useMacros } from './useMacros';

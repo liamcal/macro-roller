@@ -1,22 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button, TextField } from '@mui/material';
-import { useLocalStorage } from '../hooks';
-import { extractQueries, parseMacro, QueryLookup } from '../utils/macroUtils';
+import { QueryLookup } from '../types';
+import { useMacros } from '../hooks';
+import { extractQueries, parseMacro } from '../utils/macroUtils';
 
 const MacroEditer = () => {
-    const [macro, setMacro] = useLocalStorage('macro-roller-macro', '');
+    const { macros, upsertMacro } = useMacros('macro-roller-macrolist');
+    // Just for now
+    const macro = macros.length > 0 ? macros[0] : undefined;
     const [parsedMacro, setParsedMacro] = useState('');
-    const [queries, setQueries] = useLocalStorage(
-        'macro-roller-queries',
-        extractQueries(macro)
-    );
 
     const getQueryValue = useCallback(
         (queryId: string) => {
-            const query = queries[queryId];
-            return query?.value;
+            if (macro) {
+                const query = macro.queries[queryId];
+                return query?.value;
+            }
         },
-        [queries]
+        [macro]
     );
 
     const mergeQueries = useCallback(
@@ -31,56 +32,60 @@ const MacroEditer = () => {
                 })
             ) as QueryLookup;
 
-            // const mergedQueries = newQueries.reduce<QueryLookup>(
-            //     (obj: QueryLookup, query: MacroQuery) => ({
-            //         ...obj,
-            //         [query.queryId]: {
-            //             ...query,
-            //             value: getQueryValue(query.queryId),
-            //         },
-            //     }),
-            //     {}
-            // );
-            setQueries(mergedQueries);
+            return mergedQueries;
         },
-        [getQueryValue, setQueries]
+        [getQueryValue]
     );
 
     const updateQueryValue = (queryId: string, value: string) => {
-        setQueries((currentQueries) => ({
-            ...currentQueries,
-            [queryId]: { ...queries[queryId], value },
-        }));
+        if (macro) {
+            upsertMacro({
+                ...macro,
+                queries: {
+                    ...macro.queries,
+                    [queryId]: { ...macro.queries[queryId], value },
+                },
+            });
+        }
     };
 
     const getQueryDefaultValue = (queryId: string) => {
-        const query = queries[queryId];
-        return query?.defaultValue;
+        if (macro) {
+            const query = macro.queries[queryId];
+            return query?.defaultValue;
+        }
+        return '';
     };
 
     const handleTextAreaChange = (
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
-        setMacro(event.target.value);
+        console.log({ change: event.target.value });
+        const newQueries = extractQueries(event.target.value);
+        upsertMacro({
+            macroId: 'default',
+            name: 'default',
+            content: event.target.value,
+            queries: macro ? mergeQueries(newQueries) : newQueries,
+        });
     };
 
     const handleRunButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
-        setParsedMacro(parseMacro(macro, queries));
+        if (macro) {
+            setParsedMacro(parseMacro(macro));
+        }
     };
 
     const handleClearButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
         setParsedMacro('');
-        setMacro('');
+        if (macro) {
+            upsertMacro({ ...macro, content: '' });
+        }
     };
-
-    useEffect(() => {
-        const newQueries = extractQueries(macro);
-        mergeQueries(newQueries);
-    }, [macro, mergeQueries]);
 
     return (
         <div className="App" style={{ margin: '1rem' }}>
@@ -89,7 +94,7 @@ const MacroEditer = () => {
                 <TextField
                     multiline={true}
                     fullWidth={true}
-                    value={macro}
+                    value={macro?.content ?? ''}
                     onChange={handleTextAreaChange}
                     rows={5}
                 />
@@ -104,36 +109,35 @@ const MacroEditer = () => {
                     paddingBottom: '1.5rem',
                 }}
             >
-                {Object.keys(queries).map((queryId) => {
-                    const queryValue = queries[queryId];
-                    return (
-                        <React.Fragment>
-                            {queryValue && (
-                                <TextField
-                                    key={queryValue.queryId}
-                                    label={queryValue.queryId}
-                                    value={
-                                        getQueryValue(queryValue.queryId) ?? ''
-                                    }
-                                    onChange={(e) =>
-                                        updateQueryValue(
-                                            queryValue.queryId,
-                                            e.target.value
-                                        )
-                                    }
-                                    type="number"
-                                    helperText={
-                                        getQueryDefaultValue(queryValue.queryId)
-                                            ? `Default: ${getQueryDefaultValue(
-                                                  queryValue.queryId
-                                              )}`
-                                            : ' '
-                                    }
-                                />
-                            )}
-                        </React.Fragment>
-                    );
-                })}
+                {macro &&
+                    Object.keys(macro.queries).map((queryId) => {
+                        const queryValue = macro.queries[queryId];
+                        return (
+                            <React.Fragment key={`query-textfield-${queryId}`}>
+                                {queryValue && (
+                                    <TextField
+                                        key={queryId}
+                                        label={queryId}
+                                        value={getQueryValue(queryId) ?? ''}
+                                        onChange={(e) =>
+                                            updateQueryValue(
+                                                queryId,
+                                                e.target.value
+                                            )
+                                        }
+                                        type="number"
+                                        helperText={
+                                            getQueryDefaultValue(queryId)
+                                                ? `Default: ${getQueryDefaultValue(
+                                                      queryId
+                                                  )}`
+                                                : ' '
+                                        }
+                                    />
+                                )}
+                            </React.Fragment>
+                        );
+                    })}
             </div>
             <div
                 style={{

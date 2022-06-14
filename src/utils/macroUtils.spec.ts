@@ -1,4 +1,5 @@
-import { MacroQuery, parseMacro, QueryLookup } from './macroUtils';
+import { Macro, QueryLookup } from '../types';
+import { parseMacro } from './macroUtils';
 
 describe('parseMacro', () => {
     beforeEach(() => {
@@ -10,7 +11,12 @@ describe('parseMacro', () => {
     });
 
     it('should parse basic expressions', () => {
-        const macro = 'Hello, [[6*9]] World! [[42]]';
+        const macro: Macro = {
+            macroId: 'test',
+            name: 'test',
+            content: 'Hello, [[6*9]] World! [[42]]',
+            queries: {},
+        };
         expect(parseMacro(macro)).toEqual('Hello, 54 World! 42');
     });
 
@@ -22,7 +28,13 @@ describe('parseMacro', () => {
         ['[[d20]]', '11'],
     ])(
         'should parse dice expressions: %s -> %s',
-        (macro: string, expected: string) => {
+        (macroContent: string, expected: string) => {
+            const macro: Macro = {
+                macroId: 'test',
+                name: 'test',
+                content: macroContent,
+                queries: {},
+            };
             expect(parseMacro(macro)).toEqual(expected);
         }
     );
@@ -35,7 +47,13 @@ describe('parseMacro', () => {
         ['[[(1+1)d20]]', '22'],
     ])(
         'should parse multi-dice expressions: %s -> %s',
-        (macro: string, expected: string) => {
+        (macroContent: string, expected: string) => {
+            const macro: Macro = {
+                macroId: 'test',
+                name: 'test',
+                content: macroContent,
+                queries: {},
+            };
             expect(parseMacro(macro)).toEqual(expected);
         }
     );
@@ -44,7 +62,12 @@ describe('parseMacro', () => {
         const queryValues: QueryLookup = {
             atk: { queryId: 'atk', value: '10' },
         };
-        const macro = 'Hello, ?{atk|5} World! [[d6 + ?{atk}]]';
-        expect(parseMacro(macro, queryValues)).toEqual('Hello, 10 World! 14');
+        const macro: Macro = {
+            macroId: 'test',
+            name: 'test',
+            content: 'Hello, ?{atk|5} World! [[d6 + ?{atk}]]',
+            queries: queryValues,
+        };
+        expect(parseMacro(macro)).toEqual('Hello, 10 World! 14');
     });
 });
