@@ -1,5 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Button, TextField } from '@mui/material';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    TextField,
+} from '@mui/material';
 import { QueryLookup } from '../types';
 import { useMacros } from '../hooks';
 import { extractQueries, parseMacro } from '../utils/macroUtils';
@@ -9,6 +16,8 @@ const MacroEditer = () => {
     // Just for now
     const macro = macros.length > 0 ? macros[0] : undefined;
     const [parsedMacro, setParsedMacro] = useState('');
+    const [isConfirmClearDialogOpen, setIsConfirmClearDialogOpen] =
+        useState(false);
 
     const getQueryValue = useCallback(
         (queryId: string) => {
@@ -80,9 +89,13 @@ const MacroEditer = () => {
     const handleClearButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
+        setIsConfirmClearDialogOpen(true);
+    };
+
+    const clearMacro = () => {
         setParsedMacro('');
         if (macro) {
-            upsertMacro({ ...macro, content: '' });
+            upsertMacro({ ...macro, content: '', queries: {} });
         }
     };
 
@@ -152,6 +165,34 @@ const MacroEditer = () => {
                 >
                     Clear
                 </Button>
+                <Dialog
+                    open={isConfirmClearDialogOpen}
+                    onClose={() => setIsConfirmClearDialogOpen(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Do you really want to clear the current macro?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => setIsConfirmClearDialogOpen(false)}
+                        >
+                            No
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                clearMacro();
+                                setIsConfirmClearDialogOpen(false);
+                            }}
+                            autoFocus
+                        >
+                            Yes
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
             {parsedMacro && (
                 <p
