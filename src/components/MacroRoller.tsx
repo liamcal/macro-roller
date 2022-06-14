@@ -116,9 +116,9 @@ const MacroEditer = () => {
                 style={{
                     display: 'grid',
                     columnGap: '1rem',
-                    rowGap: '0.5rem',
+                    rowGap: '0.75rem',
                     gridTemplateColumns: '1fr 1fr',
-                    paddingBottom: '1.5rem',
+                    paddingBottom: '1rem',
                 }}
             >
                 {macro &&
@@ -152,7 +152,6 @@ const MacroEditer = () => {
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    paddingBottom: '1.5rem',
                 }}
             >
                 <Button variant="contained" onClick={handleRunButtonClick}>
