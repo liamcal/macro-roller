@@ -60,7 +60,6 @@ const MacroEditer = () => {
     const handleTextAreaChange = (
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
-        console.log({ change: event.target.value });
         const newQueries = extractQueries(event.target.value);
         upsertMacro({
             macroId: 'default',
@@ -110,34 +109,31 @@ const MacroEditer = () => {
                 }}
             >
                 {macro &&
-                    Object.keys(macro.queries).map((queryId) => {
-                        const queryValue = macro.queries[queryId];
-                        return (
-                            <React.Fragment key={`query-textfield-${queryId}`}>
-                                {queryValue && (
-                                    <TextField
-                                        key={queryId}
-                                        label={queryId}
-                                        value={getQueryValue(queryId) ?? ''}
-                                        onChange={(e) =>
-                                            updateQueryValue(
-                                                queryId,
-                                                e.target.value
-                                            )
-                                        }
-                                        type="number"
-                                        helperText={
-                                            getQueryDefaultValue(queryId)
-                                                ? `Default: ${getQueryDefaultValue(
-                                                      queryId
-                                                  )}`
-                                                : ' '
-                                        }
-                                    />
-                                )}
-                            </React.Fragment>
-                        );
-                    })}
+                    Object.keys(macro.queries).map((queryId) => (
+                        <React.Fragment key={`query-textfield-${queryId}`}>
+                            {macro.queries[queryId] && (
+                                <TextField
+                                    key={queryId}
+                                    label={queryId}
+                                    value={getQueryValue(queryId) ?? ''}
+                                    onChange={(e) =>
+                                        updateQueryValue(
+                                            queryId,
+                                            e.target.value
+                                        )
+                                    }
+                                    type="number"
+                                    helperText={
+                                        getQueryDefaultValue(queryId)
+                                            ? `Default: ${getQueryDefaultValue(
+                                                  queryId
+                                              )}`
+                                            : ' '
+                                    }
+                                />
+                            )}
+                        </React.Fragment>
+                    ))}
             </div>
             <div
                 style={{
@@ -158,7 +154,15 @@ const MacroEditer = () => {
                 </Button>
             </div>
             {parsedMacro && (
-                <p style={{ whiteSpace: 'pre-line' }}>{parsedMacro}</p>
+                <p
+                    style={{
+                        whiteSpace: 'pre-line',
+                        textAlign: 'start',
+                        fontSize: '1.25rem',
+                    }}
+                >
+                    {parsedMacro}
+                </p>
             )}
         </div>
     );
