@@ -100,8 +100,7 @@ const MacroEditer = () => {
     };
 
     return (
-        <div className="App" style={{ margin: '1rem' }}>
-            <h1>Macro Roller</h1>
+        <div>
             <div style={{ paddingBottom: '1.5rem' }}>
                 <TextField
                     multiline={true}
