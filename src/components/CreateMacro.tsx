@@ -46,7 +46,14 @@ const CreateMacro = () => {
     return (
         <div>
             <form onSubmit={handleFormSubmit}>
-                <div style={{ paddingBottom: '1.5rem' }}>
+                <div
+                    style={{
+                        display: 'grid',
+                        rowGap: '1rem',
+                        gridTemplateColumns: '1fr',
+                        paddingBottom: '1.5rem',
+                    }}
+                >
                     <TextField
                         label="Name"
                         fullWidth={true}
