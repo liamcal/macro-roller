@@ -8,11 +8,13 @@ import EditMacro from './EditMacro';
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/roll" element={<MacroRoller />} />
-            <Route path="/macro/create" element={<CreateMacro />} />
-            <Route path="/macro/:macroId" element={<ViewMacro />} />
-            <Route path="/macro/:macroId/edit" element={<EditMacro />} />
+            <Route path="/">
+                <Route index={true} element={<Home />} />
+                <Route path="roll" element={<MacroRoller />} />
+                <Route path="macro/create" element={<CreateMacro />} />
+                <Route path="macro/:macroId" element={<ViewMacro />} />
+                <Route path="macro/:macroId/edit" element={<EditMacro />} />
+            </Route>
         </Routes>
     );
 };

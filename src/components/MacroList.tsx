@@ -33,7 +33,7 @@ const MacroList = () => {
                         secondaryAction={
                             <IconButton
                                 component={RouterLink}
-                                to={`/macro/${macro.macroId}/edit`}
+                                to={`macro/${macro.macroId}/edit`}
                                 edge="end"
                                 aria-label="edit"
                             >
@@ -46,7 +46,7 @@ const MacroList = () => {
                         <ListItemButton
                             role="button"
                             component={RouterLink}
-                            to={`/macro/${macro.macroId}`}
+                            to={`macro/${macro.macroId}`}
                         >
                             <ListItemText id={labelId} primary={macro.name} />
                         </ListItemButton>
@@ -57,7 +57,7 @@ const MacroList = () => {
     ) : (
         <p>
             You don't have any macros yet, let's{' '}
-            <Link component={RouterLink} to="/macro/create">
+            <Link component={RouterLink} to="macro/create">
                 create one!
             </Link>
         </p>

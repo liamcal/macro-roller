@@ -1,6 +1,6 @@
-import { Macro, MacroQuery, QueryLookup } from '../types';
-import { useLocalStorage } from './useLocalStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { useLocalStorage } from './useLocalStorage';
+import { Macro, MacroQuery, QueryLookup } from '../types';
 import { extractQueries } from '../utils/macroUtils';
 
 const useMacros = (key: string) => {

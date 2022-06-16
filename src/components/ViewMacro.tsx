@@ -57,7 +57,7 @@ const ViewMacro = () => {
                             <IconButton
                                 aria-label="edit"
                                 component={RouterLink}
-                                to={`/macro/${macroId}/edit`}
+                                to={`edit`}
                                 sx={{ alignSelf: 'top' }}
                             >
                                 <EditIcon />

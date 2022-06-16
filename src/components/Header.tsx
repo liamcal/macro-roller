@@ -5,6 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const Header = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    console.log({ location });
     const isHome = location.pathname === '/';
 
     return (

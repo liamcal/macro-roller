@@ -11,7 +11,7 @@ const Home = () => {
                 color="primary"
                 aria-label="add"
                 component={RouterLink}
-                to="/macro/create"
+                to="macro/create"
                 sx={{
                     margin: 0,
                     top: 'auto',
