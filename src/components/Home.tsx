@@ -15,8 +15,8 @@ const Home = () => {
                 sx={{
                     margin: 0,
                     top: 'auto',
-                    right: 20,
-                    bottom: 20,
+                    right: 24,
+                    bottom: 24,
                     left: 'auto',
                     position: 'fixed',
                 }}
