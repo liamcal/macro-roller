@@ -10,9 +10,10 @@ import {
 import { QueryLookup } from '../types';
 import { useMacros } from '../hooks';
 import { extractQueries, parseMacro } from '../utils/macroUtils';
+import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 
 const MacroEditer = () => {
-    const { macros, upsertMacro } = useMacros('macro-roller-macrolist');
+    const { macros, upsertMacro } = useMacros(MACROS_LOCAL_STORAGE_KEY);
     // Just for now
     const macro = macros.length > 0 ? macros[0] : undefined;
     const [parsedMacro, setParsedMacro] = useState('');

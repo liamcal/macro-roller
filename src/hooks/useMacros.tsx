@@ -1,4 +1,4 @@
-import { Macro } from '../types';
+import { Macro, MacroQuery } from '../types';
 import { useLocalStorage } from './useLocalStorage';
 
 const useMacros = (key: string) => {
@@ -36,6 +36,22 @@ const useMacros = (key: string) => {
         }
     };
 
+    const upsertMacroQuery = (
+        macroId: string,
+        queryId: string,
+        query: MacroQuery
+    ) => {
+        const existingMacro = macros.find(
+            (macro: Macro) => macro.macroId === macroId
+        );
+        if (existingMacro) {
+            upsertMacro({
+                ...existingMacro,
+                queries: { ...existingMacro.queries, [query.queryId]: query },
+            });
+        }
+    };
+
     const deleteMacro = (macroId: string) => {
         const existingIndex = macros.findIndex(
             (macro: Macro) => macro.macroId === macroId
@@ -47,7 +63,7 @@ const useMacros = (key: string) => {
         }
     };
 
-    return { macros, getMacro, upsertMacro, deleteMacro };
+    return { macros, getMacro, upsertMacro, upsertMacroQuery, deleteMacro };
 };
 
 export { useMacros };

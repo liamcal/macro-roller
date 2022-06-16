@@ -7,8 +7,13 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { Link as RouterLink } from 'react-router-dom';
+import { useMacros } from '../hooks';
+import { Macro } from '../types';
+import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 
 const MacroList = () => {
+    const { macros } = useMacros(MACROS_LOCAL_STORAGE_KEY);
+
     return (
         <List
             sx={{
@@ -18,14 +23,19 @@ const MacroList = () => {
                 overflow: 'auto',
             }}
         >
-            {[...Array(100).keys()].map((value) => {
-                const labelId = `checkbox-list-label-${value}`;
+            {macros.map((macro: Macro) => {
+                const labelId = `checkbox-list-label-${macro.macroId}`;
 
                 return (
                     <ListItem
-                        key={value}
+                        key={macro.macroId}
                         secondaryAction={
-                            <IconButton edge="end" aria-label="edit">
+                            <IconButton
+                                component={RouterLink}
+                                to={`/macro/${macro.macroId}/edit`}
+                                edge="end"
+                                aria-label="edit"
+                            >
                                 <EditIcon />
                             </IconButton>
                         }
@@ -35,12 +45,9 @@ const MacroList = () => {
                         <ListItemButton
                             role="button"
                             component={RouterLink}
-                            to={`/${value}`}
+                            to={`/macro/${macro.macroId}`}
                         >
-                            <ListItemText
-                                id={labelId}
-                                primary={`Line item ${value + 1}`}
-                            />
+                            <ListItemText id={labelId} primary={macro.name} />
                         </ListItemButton>
                     </ListItem>
                 );
