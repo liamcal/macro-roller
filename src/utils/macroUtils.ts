@@ -1,14 +1,29 @@
 import { evaluate } from 'mathjs';
 import { Macro, MacroQuery, QueryLookup } from '../types';
 
-const rollReplacer = (match: string, ...args: any) => {
-    const maxValue = parseInt(match.slice(1));
-    const rollValue = Math.floor(Math.random() * maxValue) + 1;
+const rollReplacer = (
+    match: string,
+    dieCount: string,
+    dieSides: string,
+    ...args: any
+) => {
+    const parsedDieCount = parseInt(dieCount || '1');
+    const parsedDieSides = parseInt(dieSides);
+    const rollValue = [...Array(parsedDieCount)].reduce(
+        (prevSum: number) =>
+            prevSum + Math.floor(Math.random() * parsedDieSides) + 1,
+        0
+    );
     return `(${rollValue})`;
 };
 
 const expressionReplacer = (match: string, expr: string, ...args: any) => {
-    return evaluate(expr.replaceAll(/d[0-9]+/gi, rollReplacer)).toString();
+    return evaluate(
+        expr.replaceAll(
+            /(?<dieCount>[0-9]*)d(?<dieSides>[0-9]+)/gi,
+            rollReplacer
+        )
+    ).toString();
 };
 
 const queryReplacer =
