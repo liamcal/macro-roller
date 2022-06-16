@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Single Page Apps for GitHub Pages</title>
+        <title>Macro Roller</title>
         <script type="text/javascript">
             // Single Page Apps for GitHub Pages
             // MIT License
@@ -25,27 +25,28 @@
             var pathSegmentsToKeep = 0;
 
             var l = window.location;
-            l.replace(
+            var target =
                 l.protocol +
-                    '//' +
-                    l.hostname +
-                    (l.port ? ':' + l.port : '') +
-                    l.pathname
-                        .split('/')
-                        .slice(0, 1 + pathSegmentsToKeep)
-                        .join('/') +
-                    '/?/' +
-                    l.pathname
-                        .slice(1)
-                        .split('/')
-                        .slice(pathSegmentsToKeep)
-                        .join('/')
-                        .replace(/&/g, '~and~') +
-                    (l.search
-                        ? '&' + l.search.slice(1).replace(/&/g, '~and~')
-                        : '') +
-                    l.hash
-            );
+                '//' +
+                l.hostname +
+                (l.port ? ':' + l.port : '') +
+                l.pathname
+                    .split('/')
+                    .slice(0, 1 + pathSegmentsToKeep)
+                    .join('/') +
+                '/?/' +
+                l.pathname
+                    .slice(1)
+                    .split('/')
+                    .slice(pathSegmentsToKeep)
+                    .join('/')
+                    .replace(/&/g, '~and~') +
+                (l.search
+                    ? '&' + l.search.slice(1).replace(/&/g, '~and~')
+                    : '') +
+                l.hash;
+            console.log({ l, target });
+            l.replace(target);
         </script>
     </head>
     <body></body>

@@ -54,10 +54,13 @@
                             return s.replace(/~and~/g, '&');
                         })
                         .join('?');
+                    var hash = l.hash;
+                    var path = l.pathname.slice(0, -1);
+                    console.log({ decoded, hash, path });
                     window.history.replaceState(
                         null,
                         null,
-                        l.pathname.slice(0, -1) + decoded + l.hash
+                        path + decoded + hash
                     );
                 }
             })(window.location);
