@@ -47,7 +47,6 @@
             // the single page app to route accordingly.
             (function (l) {
                 var search = l.search[1];
-                console.log({ search });
                 if (search === '/') {
                     var decoded = l.search
                         .slice(1)
@@ -58,7 +57,6 @@
                         .join('?');
                     var hash = l.hash;
                     var path = l.pathname.slice(0, -1);
-                    console.log({ decoded, hash, path });
                     window.history.replaceState(
                         null,
                         null,
