@@ -5,9 +5,12 @@ import {
     AccordionDetails,
     AccordionSummary,
     Button,
+    IconButton,
+    Paper,
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
 import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 import { useMacros } from '../hooks';
 import { parseMacro } from '../utils/macroUtils';
@@ -44,7 +47,30 @@ const ViewMacro = () => {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
-                        <h2 style={{ margin: 0 }}>{currentMacro.name}</h2>
+                        <div
+                            style={{
+                                alignItems: 'center',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <IconButton
+                                aria-label="edit"
+                                component={RouterLink}
+                                to={`/macro/${macroId}/edit`}
+                                sx={{ alignSelf: 'top' }}
+                            >
+                                <EditIcon />
+                            </IconButton>
+                            <h2
+                                style={{
+                                    marginBlock: 0,
+                                    marginInlineStart: '1rem',
+                                }}
+                            >
+                                {currentMacro.name}
+                            </h2>
+                        </div>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography
@@ -65,28 +91,30 @@ const ViewMacro = () => {
                 macro={currentMacro}
                 upsertMacroQuery={upsertMacroQuery}
             />
-            <div>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    marginBlockEnd: '1rem',
+                }}
+            >
                 <Button variant="contained" onClick={handleRunButtonClick}>
                     Run Macro
                 </Button>
-                <Button
-                    component={RouterLink}
-                    to={`/macro/${macroId}/edit`}
-                    variant="outlined"
-                >
-                    Edit
-                </Button>
             </div>
             {parsedMacro && (
-                <p
-                    style={{
+                <Paper
+                    elevation={6}
+                    sx={{
+                        padding: '1rem',
                         whiteSpace: 'pre-line',
                         textAlign: 'start',
                         fontSize: '1.25rem',
                     }}
                 >
                     {parsedMacro}
-                </p>
+                </Paper>
             )}
         </div>
     ) : null;

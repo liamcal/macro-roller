@@ -7,90 +7,106 @@ import {
     DialogContentText,
     TextField,
 } from '@mui/material';
+import { useMacros } from '../hooks';
+import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
+import { useNavigate } from 'react-router-dom';
 
 const CreateMacro = () => {
-    const [macroText, setMacroText] = useState('');
+    const { createMacro } = useMacros(MACROS_LOCAL_STORAGE_KEY);
+    const [macroName, setMacroName] = useState('');
+    const [macroContent, setMacroContent] = useState('');
     const [isConfirmClearDialogOpen, setIsConfirmClearDialogOpen] =
         useState(false);
+    const navigate = useNavigate();
 
-    const handleMacroTextFieldChange = (
+    const handleMacroNameChange = (
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
-        setMacroText(event.target.value);
+        setMacroName(event.target.value);
     };
 
-    const handleCreateButtonClick = (
-        event: React.MouseEvent<HTMLButtonElement>
+    const handleMacroContentChange = (
+        event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
-        setMacroText('');
+        setMacroContent(event.target.value);
     };
 
     const handleClearButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
-        setMacroText('');
+        setMacroContent('');
+    };
+
+    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        createMacro(macroName, macroContent);
+        navigate(-1);
     };
 
     return (
         <div>
-            <div style={{ paddingBottom: '1.5rem' }}>
-                <TextField
-                    multiline={true}
-                    fullWidth={true}
-                    value={macroText}
-                    onChange={handleMacroTextFieldChange}
-                    rows={5}
-                />
-            </div>
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                }}
+            <form onSubmit={handleFormSubmit}>
+                <div style={{ paddingBottom: '1.5rem' }}>
+                    <TextField
+                        label="Name"
+                        fullWidth={true}
+                        value={macroName}
+                        onChange={handleMacroNameChange}
+                    />
+                    <TextField
+                        label="Content"
+                        multiline={true}
+                        fullWidth={true}
+                        value={macroContent}
+                        onChange={handleMacroContentChange}
+                        minRows={5}
+                        maxRows={15}
+                    />
+                </div>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Button variant="contained" type="submit">
+                        Create Macro
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={handleClearButtonClick}
+                    >
+                        Clear
+                    </Button>
+                </div>
+            </form>
+            <Dialog
+                open={isConfirmClearDialogOpen}
+                onClose={() => setIsConfirmClearDialogOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
             >
-                <Button
-                    variant="contained"
-                    color="success"
-                    onClick={handleCreateButtonClick}
-                >
-                    Create Macro
-                </Button>
-                <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={handleClearButtonClick}
-                >
-                    Clear
-                </Button>
-                <Dialog
-                    open={isConfirmClearDialogOpen}
-                    onClose={() => setIsConfirmClearDialogOpen(false)}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Do you really want to clear the current macro?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            onClick={() => setIsConfirmClearDialogOpen(false)}
-                        >
-                            No
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setMacroText('');
-                                setIsConfirmClearDialogOpen(false);
-                            }}
-                            autoFocus
-                        >
-                            Yes
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Do you really want to clear the current macro?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsConfirmClearDialogOpen(false)}>
+                        No
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setMacroContent('');
+                            setIsConfirmClearDialogOpen(false);
+                        }}
+                        autoFocus
+                    >
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

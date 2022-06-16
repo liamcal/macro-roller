@@ -1,23 +1,28 @@
-import { Button } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { Fab } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import MacroList from './MacroList';
 
 const Home = () => {
     return (
         <div>
             <MacroList />
-            <div>
-                <Button component={RouterLink} to="/roll" variant="contained">
-                    Get Rollin
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to="/macro/create"
-                    variant="contained"
-                >
-                    New macro
-                </Button>
-            </div>
+            <Fab
+                color="primary"
+                aria-label="add"
+                component={RouterLink}
+                to="/macro/create"
+                sx={{
+                    margin: 0,
+                    top: 'auto',
+                    right: 20,
+                    bottom: 20,
+                    left: 'auto',
+                    position: 'fixed',
+                }}
+            >
+                <AddIcon />
+            </Fab>
         </div>
     );
 };

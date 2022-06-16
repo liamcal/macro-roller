@@ -4,11 +4,7 @@ import { Macro, MacroQuery } from '../types';
 
 interface MacroQueryValuesProps {
     macro: Macro;
-    upsertMacroQuery: (
-        macroId: string,
-        queryId: string,
-        query: MacroQuery
-    ) => void;
+    upsertMacroQuery: (macroId: string, query: MacroQuery) => void;
 }
 
 const MacroQueryValues = ({
@@ -17,7 +13,7 @@ const MacroQueryValues = ({
 }: MacroQueryValuesProps) => {
     const updateQueryValue = (queryId: string, value: string) => {
         const currentQuery = macro.queries[queryId];
-        upsertMacroQuery(macro.macroId, queryId, { ...currentQuery, value });
+        upsertMacroQuery(macro.macroId, { ...currentQuery, value });
     };
 
     return (

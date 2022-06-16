@@ -26,11 +26,6 @@ const extractQueries = (content: string): QueryLookup => {
         (match) => match.groups
     ) as Partial<MacroQuery>[];
 
-    // return matchGroups.reduce(
-    //     (obj, query) => ({ ...obj, [query.defaultValue!]: query }),
-    //     {}
-    // );
-
     return Object.fromEntries(
         new Map(
             matchGroups.map((matchGroups) => [

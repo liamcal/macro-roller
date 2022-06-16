@@ -1,5 +1,7 @@
-import { Macro, MacroQuery } from '../types';
+import { Macro, MacroQuery, QueryLookup } from '../types';
 import { useLocalStorage } from './useLocalStorage';
+import { v4 as uuidv4 } from 'uuid';
+import { extractQueries } from '../utils/macroUtils';
 
 const useMacros = (key: string) => {
     const [macros, setMacros] = useLocalStorage<Macro[]>(key, []);
@@ -23,6 +25,14 @@ const useMacros = (key: string) => {
         return added;
     };
 
+    const createMacro = (name: string, content: string) => {
+        const macroId = uuidv4();
+        const queries = extractQueries(content);
+        const newMacro: Macro = { macroId, name, content, queries };
+        upsertMacro(newMacro);
+        return newMacro;
+    };
+
     const upsertMacro = (newMacro: Macro) => {
         const existingIndex = macros.findIndex(
             (macro: Macro) => macro.macroId === newMacro.macroId
@@ -36,11 +46,34 @@ const useMacros = (key: string) => {
         }
     };
 
-    const upsertMacroQuery = (
-        macroId: string,
-        queryId: string,
-        query: MacroQuery
-    ) => {
+    const mergeQueries = (oldQueries: QueryLookup, newQueries: QueryLookup) => {
+        // preserve old saved values for queries that still exist
+        const mergedQueries = Object.fromEntries(
+            Object.keys(newQueries).map((queryId: string) => {
+                const newQuery = newQueries[queryId];
+                return [
+                    queryId,
+                    { ...newQuery, value: oldQueries[queryId]?.value },
+                ];
+            })
+        ) as QueryLookup;
+
+        return mergedQueries;
+    };
+    const updateMacroContent = (macroId: string, newContent: string) => {
+        const currentMacro = getMacro(macroId);
+        if (currentMacro) {
+            const newQueries = extractQueries(newContent);
+            const newMacro: Macro = {
+                ...currentMacro,
+                content: newContent,
+                queries: mergeQueries(currentMacro.queries, newQueries),
+            };
+            upsertMacro(newMacro);
+        }
+    };
+
+    const upsertMacroQuery = (macroId: string, query: MacroQuery) => {
         const existingMacro = macros.find(
             (macro: Macro) => macro.macroId === macroId
         );
@@ -57,13 +90,23 @@ const useMacros = (key: string) => {
             (macro: Macro) => macro.macroId === macroId
         );
         if (existingIndex >= 0) {
-            setMacros((previous: Macro[]) => [
-                ...previous.splice(existingIndex, 1),
-            ]);
+            setMacros((previous: Macro[]) => {
+                const updated = [...previous];
+                updated.splice(existingIndex, 1);
+                return updated;
+            });
         }
     };
 
-    return { macros, getMacro, upsertMacro, upsertMacroQuery, deleteMacro };
+    return {
+        macros,
+        getMacro,
+        createMacro,
+        upsertMacro,
+        upsertMacroQuery,
+        updateMacroContent,
+        deleteMacro,
+    };
 };
 
 export { useMacros };

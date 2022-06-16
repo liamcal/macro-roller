@@ -1,5 +1,6 @@
 import {
     IconButton,
+    Link,
     List,
     ListItem,
     ListItemButton,
@@ -14,7 +15,7 @@ import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 const MacroList = () => {
     const { macros } = useMacros(MACROS_LOCAL_STORAGE_KEY);
 
-    return (
+    return macros.length > 0 ? (
         <List
             sx={{
                 width: '100%',
@@ -53,6 +54,13 @@ const MacroList = () => {
                 );
             })}
         </List>
+    ) : (
+        <p>
+            You don't have any macros yet, let's{' '}
+            <Link component={RouterLink} to="/macro/create">
+                create one!
+            </Link>
+        </p>
     );
 };
 

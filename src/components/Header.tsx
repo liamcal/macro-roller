@@ -1,8 +1,12 @@
-import { Link as RouterLink } from 'react-router-dom';
-import HomeIcon from '@mui/icons-material/Home';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Header = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const isHome = location.pathname === '/';
+
     return (
         <header
             style={{
@@ -20,9 +24,11 @@ const Header = () => {
                     width: '2rem',
                 }}
             >
-                <IconButton aria-label="home" component={RouterLink} to="/">
-                    <HomeIcon fontSize="inherit" />
-                </IconButton>
+                {!isHome && (
+                    <IconButton aria-label="home" onClick={() => navigate(-1)}>
+                        <ArrowBackIcon fontSize="inherit" />
+                    </IconButton>
+                )}
             </div>
             <div
                 style={{
@@ -32,7 +38,7 @@ const Header = () => {
                     lineHeight: 0,
                 }}
             >
-                <h1 style={{ margin: '0' }}>Macro Roller</h1>
+                <h1>Macro Roller</h1>
             </div>
             <div
                 style={{
