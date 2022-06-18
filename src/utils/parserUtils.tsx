@@ -75,4 +75,68 @@ const tokenize = (macroContent: string) => {
     return buildTokens(macroContent.split(tokenizerRegex).filter(Boolean));
 };
 
+const buildTextNode = (content: string): TextNode => {
+    return {
+        type: NodeType.Text,
+        content,
+        render: () => <React.Fragment>{content}</React.Fragment>,
+    };
+};
+
+const buildDiceNode = (sides: number, count: number): DiceNode => {
+    return {
+        type: NodeType.Dice,
+        sides,
+        count,
+        render: () => (
+            <React.Fragment>
+                {[...Array(count)].reduce(
+                    (prevSum: number) =>
+                        prevSum + Math.floor(Math.random() * sides) + 1,
+                    0
+                )}
+            </React.Fragment>
+        ),
+    };
+};
+
+const buildQueryNode = (queryId: string, defaultValue: number): QueryNode => {
+    return {
+        type: NodeType.Query,
+        queryId,
+        defaultValue,
+        render: (queryValues: QueryValues) => (
+            <React.Fragment>
+                {queryValues[queryId] ?? defaultValue}
+            </React.Fragment>
+        ),
+    };
+};
+
+const createNode = (token: Token): ParseNode => {
+    switch (token.type) {
+        case TokenType.Text:
+            return buildTextNode(token.content);
+        case TokenType.Dice:
+            if (!token.groups?.sides) {
+                throw Error(
+                    `Failed to build dice node, could not find required match value 'sides' ${token.groups}`
+                );
+            }
+            const count = parseInt(token.groups.count || '1');
+            const sides = parseInt(token.groups.sides);
+            return buildDiceNode(sides, count);
+        case TokenType.Query:
+            if (!token.groups?.queryId) {
+                throw Error(
+                    `Failed to build query node, could not find required match value 'queryId' ${token.groups}`
+                );
+            }
+            const queryId = token.groups.queryId;
+            const defaultValue = parseInt(token.groups.defaultValue || '0');
+            return buildQueryNode(queryId, defaultValue);
+    }
+    throw Error(`Unrecognized token type: ${token.type}`);
+};
+
 export { tokenize };
