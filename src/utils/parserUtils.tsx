@@ -1,6 +1,8 @@
+import { letterSpacing } from '@mui/system';
 import React from 'react';
 import {
     DiceNode,
+    ExpressionNode,
     NodeType,
     ParseNode,
     QueryNode,
@@ -88,13 +90,26 @@ const buildDiceNode = (sides: number, count: number): DiceNode => {
         type: NodeType.Dice,
         sides,
         count,
-        render: () => (
+        render: () => {
+            const rolls = [...Array(count)].map(
+                () => Math.floor(Math.random() * sides) + 1
+            );
+            return <React.Fragment>{`(${rolls.join(' + ')})`}</React.Fragment>;
+        },
+    };
+};
+
+const buildExpressionNode = (children: ParseNode[]): ExpressionNode => {
+    return {
+        type: NodeType.Expression,
+        children,
+        render: (queryValues: QueryValues) => (
             <React.Fragment>
-                {[...Array(count)].reduce(
-                    (prevSum: number) =>
-                        prevSum + Math.floor(Math.random() * sides) + 1,
-                    0
-                )}
+                {children.map((child: ParseNode, i: number) => (
+                    <React.Fragment key={i}>
+                        {child.render(queryValues)}
+                    </React.Fragment>
+                ))}
             </React.Fragment>
         ),
     };
@@ -113,30 +128,75 @@ const buildQueryNode = (queryId: string, defaultValue: number): QueryNode => {
     };
 };
 
-const createNode = (token: Token): ParseNode => {
-    switch (token.type) {
-        case TokenType.Text:
-            return buildTextNode(token.content);
-        case TokenType.Dice:
-            if (!token.groups?.sides) {
-                throw Error(
-                    `Failed to build dice node, could not find required match value 'sides' ${token.groups}`
+const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
+    const result: ParseNode[] = [];
+    let currentToken = tokenQueue.shift();
+    while (currentToken) {
+        switch (currentToken.type) {
+            case TokenType.Text:
+                result.push(buildTextNode(currentToken.content));
+                break;
+            case TokenType.Dice:
+                if (parentNodeType !== NodeType.Expression) {
+                    throw Error(
+                        `Parse error, dice expression with invalid parent node type: ${
+                            parentNodeType ?? 'None'
+                        }`
+                    );
+                }
+                if (!currentToken.groups?.sides) {
+                    throw Error(
+                        `Failed to parse dice expression, could not find required match value 'sides' ${currentToken.groups}`
+                    );
+                }
+                const count = parseInt(currentToken.groups.count || '1');
+                const sides = parseInt(currentToken.groups.sides);
+                result.push(buildDiceNode(sides, count));
+                break;
+            case TokenType.Query:
+                if (parentNodeType !== NodeType.Expression) {
+                    throw Error(
+                        `Parse error, query expression with invalid parent node type: ${
+                            parentNodeType ?? 'None'
+                        }`
+                    );
+                }
+                if (!currentToken.groups?.queryId) {
+                    throw Error(
+                        `Failed to parse query expression, could not find required match value 'queryId' ${currentToken.groups}`
+                    );
+                }
+                const queryId = currentToken.groups.queryId;
+                const defaultValue = parseInt(
+                    currentToken.groups.defaultValue || '0'
                 );
-            }
-            const count = parseInt(token.groups.count || '1');
-            const sides = parseInt(token.groups.sides);
-            return buildDiceNode(sides, count);
-        case TokenType.Query:
-            if (!token.groups?.queryId) {
-                throw Error(
-                    `Failed to build query node, could not find required match value 'queryId' ${token.groups}`
-                );
-            }
-            const queryId = token.groups.queryId;
-            const defaultValue = parseInt(token.groups.defaultValue || '0');
-            return buildQueryNode(queryId, defaultValue);
+                result.push(buildQueryNode(queryId, defaultValue));
+                break;
+            case TokenType.BeginExpression:
+                const children = parseInner(tokenQueue, NodeType.Expression);
+                result.push(buildExpressionNode(children));
+                break;
+            case TokenType.EndExpression:
+                if (parentNodeType !== NodeType.Expression) {
+                    throw Error(
+                        `Parse error, close expression tag without corresponding open tag`
+                    );
+                }
+                return result;
+            default:
+                throw Error(`Unrecognized token type: ${currentToken.type}`);
+        }
+        currentToken = tokenQueue.shift();
     }
-    throw Error(`Unrecognized token type: ${token.type}`);
+    if (parentNodeType === NodeType.Expression) {
+        throw Error(`Parse error, unclosed expression tag`);
+    }
+    return result;
 };
 
-export { tokenize };
+const parseTokens = (tokens: Token[]): ParseNode[] => {
+    const tokensCopy = [...tokens];
+    return parseInner(tokensCopy);
+};
+
+export { tokenize, parseTokens };
