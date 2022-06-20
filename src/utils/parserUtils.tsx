@@ -1,5 +1,7 @@
-import { letterSpacing } from '@mui/system';
 import React from 'react';
+import { Button, Tooltip } from '@mui/material';
+import { evaluate } from 'mathjs';
+
 import {
     DiceNode,
     ExpressionNode,
@@ -81,7 +83,7 @@ const buildTextNode = (content: string): TextNode => {
     return {
         type: NodeType.Text,
         content,
-        render: () => <React.Fragment>{content}</React.Fragment>,
+        render: () => content,
     };
 };
 
@@ -94,7 +96,7 @@ const buildDiceNode = (sides: number, count: number): DiceNode => {
             const rolls = [...Array(count)].map(
                 () => Math.floor(Math.random() * sides) + 1
             );
-            return <React.Fragment>{`(${rolls.join(' + ')})`}</React.Fragment>;
+            return `(${rolls.join(' + ')})`;
         },
     };
 };
@@ -103,15 +105,33 @@ const buildExpressionNode = (children: ParseNode[]): ExpressionNode => {
     return {
         type: NodeType.Expression,
         children,
-        render: (queryValues: QueryValues) => (
-            <React.Fragment>
-                {children.map((child: ParseNode, i: number) => (
-                    <React.Fragment key={i}>
-                        {child.render(queryValues)}
-                    </React.Fragment>
-                ))}
-            </React.Fragment>
-        ),
+        render: (queryValues: QueryValues) => {
+            const renderedChildren = children
+                .map((child: ParseNode, i: number) => child.render(queryValues))
+                .join('');
+            return (
+                <Tooltip
+                    disableFocusListener={true}
+                    placement="top"
+                    title={renderedChildren}
+                    enterTouchDelay={100}
+                >
+                    <Button
+                        sx={{
+                            textAlign: 'start',
+                            fontSize: '1.25rem',
+                            minHeight: 0,
+                            minWidth: 0,
+                            padding: '0 0.25rem',
+                            lineHeight: '1.5rem',
+                        }}
+                        variant="outlined"
+                    >
+                        {evaluate(renderedChildren)}
+                    </Button>
+                </Tooltip>
+            );
+        },
     };
 };
 
@@ -120,11 +140,8 @@ const buildQueryNode = (queryId: string, defaultValue: number): QueryNode => {
         type: NodeType.Query,
         queryId,
         defaultValue,
-        render: (queryValues: QueryValues) => (
-            <React.Fragment>
-                {queryValues[queryId] ?? defaultValue}
-            </React.Fragment>
-        ),
+        render: (queryValues: QueryValues) =>
+            queryValues[queryId] ?? defaultValue,
     };
 };
 
@@ -194,9 +211,24 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
     return result;
 };
 
-const parseTokens = (tokens: Token[]): ParseNode[] => {
+const parseTokens = (tokens: Token[]) => {
     const tokensCopy = [...tokens];
     return parseInner(tokensCopy);
 };
 
-export { tokenize, parseTokens };
+const compileMacro = (macroContent: string) => {
+    return parseTokens(tokenize(macroContent));
+};
+
+const renderCompiledMacro = (nodes: ParseNode[], queryValues: QueryValues) => {
+    return (
+        <React.Fragment>
+            {nodes.map((node: ParseNode, i: number) => (
+                <React.Fragment key={i}>
+                    {node.render(queryValues)}
+                </React.Fragment>
+            ))}
+        </React.Fragment>
+    );
+};
+export { tokenize, parseTokens, compileMacro, renderCompiledMacro };

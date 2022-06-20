@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
     Accordion,
@@ -13,7 +13,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 import { useMacros } from '../hooks';
-import { parseMacro } from '../utils/macroUtils';
+import { compileMacro, renderCompiledMacro } from '../utils/parserUtils';
 import MacroQueryValues from './MacroQueryValues';
 
 const ViewMacro = () => {
@@ -26,7 +26,21 @@ const ViewMacro = () => {
                 : undefined,
         [macros, macroId]
     );
-    const [parsedMacro, setParsedMacro] = useState('');
+
+    const compiledMacro = useMemo(() => {
+        if (currentMacro) {
+            try {
+                return compileMacro(currentMacro.content);
+            } catch {
+                return [];
+            }
+        }
+        return [];
+    }, [currentMacro]);
+
+    const [parsedMacro, setParsedMacro] = useState<
+        React.ReactNode | React.ReactNode[] | null
+    >(null);
 
     if (!currentMacro) {
         return null;
@@ -35,7 +49,22 @@ const ViewMacro = () => {
     const handleRunButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
-        setParsedMacro(parseMacro(currentMacro));
+        // setParsedMacro(parseMacro(currentMacro));
+        setParsedMacro(
+            renderCompiledMacro(
+                compiledMacro,
+                Object.fromEntries(
+                    Object.keys(currentMacro.queries).map((queryId: string) => [
+                        queryId,
+                        parseInt(
+                            currentMacro.queries[queryId].value ||
+                                currentMacro.queries[queryId].defaultValue ||
+                                '0'
+                        ),
+                    ])
+                )
+            )
+        );
     };
 
     return currentMacro ? (

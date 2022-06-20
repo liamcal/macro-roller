@@ -27,7 +27,9 @@ export interface QueryValues {
 
 export interface ParseNode {
     type: NodeType;
-    render: (queryValues: QueryValues) => React.ReactNode | React.ReactNode[];
+    render: (
+        queryValues: QueryValues
+    ) => React.ReactNode | React.ReactNode[] | string;
 }
 
 export interface TextNode extends ParseNode {
