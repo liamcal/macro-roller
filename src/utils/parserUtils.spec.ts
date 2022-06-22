@@ -164,17 +164,27 @@ describe('parser', () => {
             },
             { content: '[[', type: TokenType.BeginExpression },
             {
-                content: 'd8',
+                content: 'd8cs>7',
                 type: TokenType.Dice,
-                groups: { count: undefined, sides: '8' },
+                groups: {
+                    count: undefined,
+                    sides: '8',
+                    failRange: undefined,
+                    successRange: '7',
+                },
             },
             { content: '+ 2 + 5 +', type: TokenType.Text },
             { content: '[[', type: TokenType.BeginExpression },
 
             {
-                content: '2d10',
+                content: '2d10cf<2',
                 type: TokenType.Dice,
-                groups: { count: '2', sides: '10' },
+                groups: {
+                    count: '2',
+                    sides: '10',
+                    failRange: 2,
+                    successRange: undefined,
+                },
             },
             { content: ']]', type: TokenType.EndExpression },
 
@@ -200,6 +210,7 @@ describe('parser', () => {
                         type: NodeType.Dice,
                         count: 1,
                         sides: 8,
+                        successRange: 7,
                     },
                     {
                         type: NodeType.Text,
@@ -212,6 +223,7 @@ describe('parser', () => {
                                 type: NodeType.Dice,
                                 count: 2,
                                 sides: 10,
+                                failRange: 2,
                             },
                         ],
                     },
