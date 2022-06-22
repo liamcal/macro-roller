@@ -4,22 +4,32 @@ import { parseTokens, tokenize } from './parserUtils';
 describe('tokenize', () => {
     it('should tokenize', () => {
         const macroContent =
-            'Hello world d8 foo 2d10 bar [[2 + 5]] baz ?{e1} [[d20 + 10]] ?{e2|10}[[0d20 + [[2*10]] -5]] 000';
+            'Hello world d8cs>10 foo 2d10 bar [[2 + 5]] baz ?{e1} [[d20cs>19cf<2 + 10]] ?{e2|10}[[0d20 + [[2*10]] -5]] 000';
         const expectedTokens: Token[] = [
             {
                 content: 'Hello world ',
                 type: TokenType.Text,
             },
             {
-                content: 'd8',
+                content: 'd8cs>10',
                 type: TokenType.Dice,
-                groups: { count: undefined, sides: '8' },
+                groups: {
+                    count: undefined,
+                    sides: '8',
+                    failRange: undefined,
+                    successRange: '10',
+                },
             },
             { content: ' foo ', type: TokenType.Text },
             {
                 content: '2d10',
                 type: TokenType.Dice,
-                groups: { count: '2', sides: '10' },
+                groups: {
+                    count: '2',
+                    sides: '10',
+                    failRange: undefined,
+                    successRange: undefined,
+                },
             },
             { content: ' bar ', type: TokenType.Text },
             { content: '[[', type: TokenType.BeginExpression },
@@ -34,9 +44,14 @@ describe('tokenize', () => {
             { content: ' ', type: TokenType.Text },
             { content: '[[', type: TokenType.BeginExpression },
             {
-                content: 'd20',
+                content: 'd20cs>19cf<2',
                 type: TokenType.Dice,
-                groups: { count: undefined, sides: '20' },
+                groups: {
+                    count: undefined,
+                    sides: '20',
+                    failRange: '2',
+                    successRange: '19',
+                },
             },
             { content: ' + 10', type: TokenType.Text },
             { content: ']]', type: TokenType.EndExpression },
@@ -50,7 +65,12 @@ describe('tokenize', () => {
             {
                 content: '0d20',
                 type: TokenType.Dice,
-                groups: { count: '0', sides: '20' },
+                groups: {
+                    count: '0',
+                    sides: '20',
+                    failRange: undefined,
+                    successRange: undefined,
+                },
             },
             { content: ' + ', type: TokenType.Text },
             { content: '[[', type: TokenType.BeginExpression },

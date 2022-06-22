@@ -36,6 +36,8 @@ export interface DiceNode {
     type: NodeType.Dice;
     sides: number;
     count: number;
+    successRange?: number;
+    failRange?: number;
 }
 
 export interface ExpressionNode {

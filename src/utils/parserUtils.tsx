@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Tooltip } from '@mui/material';
 import { evaluate } from 'mathjs';
-
 import {
     DiceNode,
     ExpressionNode,
@@ -24,8 +23,9 @@ const queryRegex = /(?:\?\{.+?(?=\|[0-9]+)?\})/;
 const queryCaptureRegex =
     /(?:\?\{(?<queryId>.+?)(?:\|(?<defaultValue>[0-9]+))?\})/;
 
-const diceRegex = /(?:[0-9]*?d[0-9]+)/;
-const diceCapturingRegex = /(?<count>[0-9]+)?d(?<sides>[0-9]+)/;
+const diceRegex = /(?:[0-9]*?d[0-9]+(?:cs>[0-9]+)?(?:cf<[0-9]+)?)/;
+const diceCapturingRegex =
+    /(?<count>[0-9]+)?d(?<sides>[0-9]+)(?:cs>(?<successRange>[0-9]+))?(?:cf<(?<failRange>[0-9]+))?/;
 
 const tokenizerRegex = composeRegexes([
     beginExpressionRegex,
@@ -91,11 +91,18 @@ const renderTextNode = ({ content }: TextNode): RenderResult => {
     return { result: content };
 };
 
-const buildDiceNode = (sides: number, count: number): DiceNode => {
+const buildDiceNode = (
+    sides: number,
+    count: number,
+    successRange?: number,
+    failRange?: number
+): DiceNode => {
     return {
         type: NodeType.Dice,
         sides,
         count,
+        successRange,
+        failRange,
     };
 };
 
@@ -127,12 +134,18 @@ const getCritStatus = (hasSuccess: boolean, hasFailure: boolean) => {
 const renderDiceNode = ({
     sides,
     count,
+    successRange,
+    failRange,
 }: DiceNode): RenderResult<DiceState> => {
     const rolls = [...Array(count)].map(
         () => Math.floor(Math.random() * sides) + 1
     );
-    const hasCritSuccess = Boolean(rolls.find((roll) => roll === sides));
-    const hasCritFailure = Boolean(rolls.find((roll) => roll === 1));
+    const hasCritSuccess = Boolean(
+        rolls.find((roll) => roll >= (successRange ?? sides))
+    );
+    const hasCritFailure = Boolean(
+        rolls.find((roll) => roll <= (failRange ?? 1))
+    );
     const critStatus = getCritStatus(hasCritSuccess, hasCritFailure);
     return {
         result: `(${rolls.join(' + ')})`,
@@ -270,7 +283,16 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
                 }
                 const count = parseInt(currentToken.groups.count || '1');
                 const sides = parseInt(currentToken.groups.sides);
-                result.push(buildDiceNode(sides, count));
+                const successRange = currentToken.groups.successRange
+                    ? parseInt(currentToken.groups.successRange)
+                    : undefined;
+                const failRange = currentToken.groups.failRange
+                    ? parseInt(currentToken.groups.failRange)
+                    : undefined;
+
+                result.push(
+                    buildDiceNode(sides, count, successRange, failRange)
+                );
                 break;
             case TokenType.Query:
                 if (parentNodeType !== NodeType.Expression) {
@@ -315,7 +337,8 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
 
 const parseTokens = (tokens: Token[]) => {
     const tokensCopy = [...tokens];
-    return parseInner(tokensCopy);
+    const parseResult = parseInner(tokensCopy);
+    return parseResult;
 };
 
 const compileMacro = (macroContent: string) => {
