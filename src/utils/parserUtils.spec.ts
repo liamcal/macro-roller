@@ -175,19 +175,17 @@ describe('parser', () => {
             },
             { content: '+ 2 + 5 +', type: TokenType.Text },
             { content: '[[', type: TokenType.BeginExpression },
-
             {
                 content: '2d10cf<2',
                 type: TokenType.Dice,
                 groups: {
                     count: '2',
                     sides: '10',
-                    failRange: 2,
+                    failRange: '2',
                     successRange: undefined,
                 },
             },
             { content: ']]', type: TokenType.EndExpression },
-
             { content: ' + ', type: TokenType.Text },
             {
                 content: '?{e1}',
