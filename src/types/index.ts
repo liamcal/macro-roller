@@ -1,3 +1,5 @@
+import React from 'react';
+
 export enum TokenType {
     Text = 'Text',
     Dice = 'Dice',
@@ -25,33 +27,33 @@ export interface QueryValues {
     [queryId: string]: number;
 }
 
-export interface ParseNode {
-    type: NodeType;
-    render: (
-        queryValues: QueryValues
-    ) => React.ReactNode | React.ReactNode[] | string;
-}
-
-export interface TextNode extends ParseNode {
+export interface TextNode {
     type: NodeType.Text;
     content: string;
 }
 
-export interface DiceNode extends ParseNode {
+export interface DiceNode {
     type: NodeType.Dice;
     sides: number;
     count: number;
 }
 
-export interface ExpressionNode extends ParseNode {
+export interface ExpressionNode {
     type: NodeType.Expression;
     children: ParseNode[];
 }
 
-export interface QueryNode extends ParseNode {
+export interface QueryNode {
     type: NodeType.Query;
     queryId: string;
     defaultValue?: number;
+}
+
+export type ParseNode = TextNode | DiceNode | ExpressionNode | QueryNode;
+
+export interface RenderResult<T = undefined> {
+    result: string | number | React.ReactNode;
+    state?: T;
 }
 
 export interface Macro {
@@ -59,6 +61,7 @@ export interface Macro {
     name: string;
     content: string;
     queries: QueryLookup;
+    compiledMacro: ParseNode[];
 }
 
 export interface QueryLookup {

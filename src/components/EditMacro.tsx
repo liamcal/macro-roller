@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -15,6 +16,8 @@ import { useMacros } from '../hooks';
 
 const EditMacro = () => {
     const navigate = useNavigate();
+    const { state } = useLocation();
+    const backLink = (state as { back?: string })?.back ?? '/';
     const { macroId } = useParams();
     const { macros, updateMacroContent, deleteMacro } = useMacros(
         MACROS_LOCAL_STORAGE_KEY
@@ -28,7 +31,8 @@ const EditMacro = () => {
     );
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
         useState(false);
-    const [isSavedSnackbarVisible, setIsSavedSnackbarVisible] = useState(false);
+    const [isErrorSnackbarVisible, setIsErrorSnackbarVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [macroContent, setMacroContent] = useState(
         currentMacro?.content ?? ''
     );
@@ -37,28 +41,27 @@ const EditMacro = () => {
         return null;
     }
 
+    const showErrorSnackbar = (message: string) => {
+        setIsErrorSnackbarVisible(true);
+        setErrorMessage(message);
+    };
+
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        updateMacroContent(currentMacro.macroId, macroContent);
-        navigate(-1);
-        // setIsSavedSnackbarVisible(true);
+        try {
+            updateMacroContent(currentMacro.macroId, macroContent);
+            navigate(backLink);
+        } catch (error) {
+            if (error instanceof Error) {
+                showErrorSnackbar(error.message);
+            }
+        }
     };
 
     const handleConfirmDeleteClick = () => {
         setIsConfirmDeleteDialogOpen(false);
         deleteMacro(currentMacro.macroId);
         navigate('/', { replace: true });
-    };
-
-    const handleSnackbarClose = (
-        event: React.SyntheticEvent | Event,
-        reason?: string
-    ) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setIsSavedSnackbarVisible(false);
     };
 
     return (
@@ -124,11 +127,12 @@ const EditMacro = () => {
                 </DialogActions>
             </Dialog>
             <Snackbar
-                open={isSavedSnackbarVisible}
-                autoHideDuration={2500}
-                onClose={handleSnackbarClose}
-                message="Macro updated"
-            />
+                open={isErrorSnackbarVisible}
+                autoHideDuration={5000}
+                onClose={() => setIsErrorSnackbarVisible(false)}
+            >
+                <Alert severity="error">{errorMessage}</Alert>
+            </Snackbar>
         </div>
     );
 };

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
+    Snackbar,
     TextField,
 } from '@mui/material';
 import { useMacros } from '../hooks';
@@ -17,6 +19,8 @@ const CreateMacro = () => {
     const [macroContent, setMacroContent] = useState('');
     const [isConfirmClearDialogOpen, setIsConfirmClearDialogOpen] =
         useState(false);
+    const [isErrorSnackbarVisible, setIsErrorSnackbarVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const handleMacroNameChange = (
@@ -37,10 +41,21 @@ const CreateMacro = () => {
         setMacroContent('');
     };
 
+    const showErrorSnackbar = (message: string) => {
+        setIsErrorSnackbarVisible(true);
+        setErrorMessage(message);
+    };
+
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        createMacro(macroName, macroContent);
-        navigate(-1);
+        try {
+            createMacro(macroName, macroContent);
+            navigate('/');
+        } catch (error) {
+            if (error instanceof Error) {
+                showErrorSnackbar(error.message);
+            }
+        }
     };
 
     return (
@@ -88,6 +103,13 @@ const CreateMacro = () => {
                     </Button>
                 </div>
             </form>
+            <Snackbar
+                open={isErrorSnackbarVisible}
+                autoHideDuration={5000}
+                onClose={() => setIsErrorSnackbarVisible(false)}
+            >
+                <Alert severity="error">{errorMessage}</Alert>
+            </Snackbar>
             <Dialog
                 open={isConfirmClearDialogOpen}
                 onClose={() => setIsConfirmClearDialogOpen(false)}

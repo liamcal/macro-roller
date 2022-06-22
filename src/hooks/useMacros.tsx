@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorage } from './useLocalStorage';
 import { Macro, MacroQuery, QueryLookup } from '../types';
 import { extractQueries } from '../utils/macroUtils';
+import { compileMacro } from '../utils/parserUtils';
 
 const useMacros = (key: string) => {
     const [macros, setMacros] = useLocalStorage<Macro[]>(key, []);
@@ -28,7 +29,14 @@ const useMacros = (key: string) => {
     const createMacro = (name: string, content: string) => {
         const macroId = uuidv4();
         const queries = extractQueries(content);
-        const newMacro: Macro = { macroId, name, content, queries };
+        const compiledMacro = compileMacro(content);
+        const newMacro: Macro = {
+            macroId,
+            name,
+            content,
+            queries,
+            compiledMacro,
+        };
         upsertMacro(newMacro);
         return newMacro;
     };
@@ -64,10 +72,13 @@ const useMacros = (key: string) => {
         const currentMacro = getMacro(macroId);
         if (currentMacro) {
             const newQueries = extractQueries(newContent);
+            const newCompiled = compileMacro(newContent);
+
             const newMacro: Macro = {
                 ...currentMacro,
                 content: newContent,
                 queries: mergeQueries(currentMacro.queries, newQueries),
+                compiledMacro: newCompiled,
             };
             upsertMacro(newMacro);
         }

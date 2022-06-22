@@ -71,11 +71,13 @@ const MacroEditer = () => {
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
         const newQueries = extractQueries(event.target.value);
+
         upsertMacro({
             macroId: 'default',
             name: 'default',
             content: event.target.value,
             queries: macro ? mergeQueries(newQueries) : newQueries,
+            compiledMacro: [], // Hack for now, this will be deprecated soon
         });
     };
 

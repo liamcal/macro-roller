@@ -28,8 +28,12 @@ const ViewMacro = () => {
     );
 
     const compiledMacro = useMemo(() => {
-        if (currentMacro) {
+        if (currentMacro?.content) {
+            if (currentMacro.compiledMacro?.length > 0) {
+                return currentMacro.compiledMacro;
+            }
             try {
+                // The compiled macro should already exist, but if it doesn't - compile it on the fly for now
                 return compileMacro(currentMacro.content);
             } catch {
                 return [];
@@ -49,7 +53,6 @@ const ViewMacro = () => {
     const handleRunButtonClick = (
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
-        // setParsedMacro(parseMacro(currentMacro));
         setParsedMacro(
             renderCompiledMacro(
                 compiledMacro,
@@ -87,6 +90,7 @@ const ViewMacro = () => {
                                 aria-label="edit"
                                 component={RouterLink}
                                 to={`edit`}
+                                state={{ back: `/macro/${macroId}` }}
                                 sx={{ alignSelf: 'top' }}
                             >
                                 <EditIcon />

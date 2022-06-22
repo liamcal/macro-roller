@@ -94,42 +94,42 @@ describe('parser', () => {
         ];
 
         const expectedNodes = [
-            expect.objectContaining({
+            {
                 type: NodeType.Text,
                 content: 'Hello world ',
-            }),
-            expect.objectContaining({
+            },
+            {
                 type: NodeType.Expression,
-                children: expect.arrayContaining([
-                    expect.objectContaining({
+                children: [
+                    {
                         type: NodeType.Dice,
                         count: 1,
                         sides: 8,
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Text,
                         content: '+ 2 + 5 +',
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Dice,
                         count: 2,
                         sides: 10,
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Text,
                         content: ' + ',
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Query,
                         queryId: 'e1',
                         defaultValue: 0,
-                    }),
-                ]),
-            }),
-            expect.objectContaining({
+                    },
+                ],
+            },
+            {
                 type: NodeType.Text,
                 content: ' baz',
-            }),
+            },
         ];
 
         const nodes = parseTokens(tokens);
@@ -169,47 +169,47 @@ describe('parser', () => {
         ];
 
         const expectedNodes = [
-            expect.objectContaining({
+            {
                 type: NodeType.Text,
                 content: 'Hello world ',
-            }),
-            expect.objectContaining({
+            },
+            {
                 type: NodeType.Expression,
-                children: expect.arrayContaining([
-                    expect.objectContaining({
+                children: [
+                    {
                         type: NodeType.Dice,
                         count: 1,
                         sides: 8,
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Text,
                         content: '+ 2 + 5 +',
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Expression,
-                        children: expect.arrayContaining([
-                            expect.objectContaining({
+                        children: [
+                            {
                                 type: NodeType.Dice,
                                 count: 2,
                                 sides: 10,
-                            }),
-                        ]),
-                    }),
-                    expect.objectContaining({
+                            },
+                        ],
+                    },
+                    {
                         type: NodeType.Text,
                         content: ' + ',
-                    }),
-                    expect.objectContaining({
+                    },
+                    {
                         type: NodeType.Query,
                         queryId: 'e1',
                         defaultValue: 0,
-                    }),
-                ]),
-            }),
-            expect.objectContaining({
+                    },
+                ],
+            },
+            {
                 type: NodeType.Text,
                 content: ' baz',
-            }),
+            },
         ];
 
         const nodes = parseTokens(tokens);
@@ -228,7 +228,7 @@ describe('parser', () => {
         ];
 
         expect(() => parseTokens(tokens)).toThrowError(
-            'Parse error, unclosed expression tag'
+            'Invalid macro, open expression tag without corresponding close tag'
         );
     });
 
@@ -245,7 +245,7 @@ describe('parser', () => {
         ];
 
         expect(() => parseTokens(tokens)).toThrowError(
-            'Parse error, close expression tag without corresponding open tag'
+            'Invalid macro, close expression tag without corresponding open tag'
         );
     });
 
@@ -263,7 +263,7 @@ describe('parser', () => {
         ];
 
         expect(() => parseTokens(tokens)).toThrowError(
-            'Parse error, dice expression with invalid parent node type: None'
+            'Invalid macro, dice expression found outside expression tag'
         );
     });
 
@@ -281,7 +281,7 @@ describe('parser', () => {
         ];
 
         expect(() => parseTokens(tokens)).toThrowError(
-            'Parse error, query expression with invalid parent node type: None'
+            'Invalid macro, query expression found outside expression tag'
         );
     });
 });

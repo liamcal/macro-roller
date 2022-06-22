@@ -9,6 +9,7 @@ import {
     ParseNode,
     QueryNode,
     QueryValues,
+    RenderResult,
     TextNode,
     Token,
     TokenType,
@@ -17,14 +18,14 @@ import {
 const composeRegexes = (regexes: RegExp[]) =>
     new RegExp(`(${regexes.map((regex) => regex.source).join('|')})`);
 
-const beginExpressionRegex = /(?:\[\[)/g;
-const endExpressionRegex = /(?:\]\])/g;
-const queryRegex = /(?:\?\{.+?(?=\|[0-9]+)?\})/g;
+const beginExpressionRegex = /(?:\[\[)/;
+const endExpressionRegex = /(?:\]\])/;
+const queryRegex = /(?:\?\{.+?(?=\|[0-9]+)?\})/;
 const queryCaptureRegex =
-    /(?:\?\{(?<queryId>.+?)(?:\|(?<defaultValue>[0-9]+))?\})/g;
+    /(?:\?\{(?<queryId>.+?)(?:\|(?<defaultValue>[0-9]+))?\})/;
 
-const diceRegex = /(?:[0-9]*?d[0-9]+)/g;
-const diceCapturingRegex = /(?<count>[0-9]+)?d(?<sides>[0-9]+)/g;
+const diceRegex = /(?:[0-9]*?d[0-9]+)/;
+const diceCapturingRegex = /(?<count>[0-9]+)?d(?<sides>[0-9]+)/;
 
 const tokenizerRegex = composeRegexes([
     beginExpressionRegex,
@@ -83,8 +84,11 @@ const buildTextNode = (content: string): TextNode => {
     return {
         type: NodeType.Text,
         content,
-        render: () => content,
     };
+};
+
+const renderTextNode = ({ content }: TextNode): RenderResult => {
+    return { result: content };
 };
 
 const buildDiceNode = (sides: number, count: number): DiceNode => {
@@ -92,12 +96,47 @@ const buildDiceNode = (sides: number, count: number): DiceNode => {
         type: NodeType.Dice,
         sides,
         count,
-        render: () => {
-            const rolls = [...Array(count)].map(
-                () => Math.floor(Math.random() * sides) + 1
-            );
-            return `(${rolls.join(' + ')})`;
-        },
+    };
+};
+
+enum CritStatus {
+    None = 'None',
+    Success = 'Success',
+    Failure = 'Failure',
+    Mixed = 'Mixed',
+}
+
+interface DiceState {
+    rolls: number[];
+    critStatus: CritStatus;
+}
+
+const getCritStatus = (hasSuccess: boolean, hasFailure: boolean) => {
+    if (hasSuccess && hasFailure) {
+        return CritStatus.Mixed;
+    }
+    if (!hasSuccess && hasFailure) {
+        return CritStatus.Failure;
+    }
+    if (hasSuccess && !hasFailure) {
+        return CritStatus.Success;
+    }
+    return CritStatus.None;
+};
+
+const renderDiceNode = ({
+    sides,
+    count,
+}: DiceNode): RenderResult<DiceState> => {
+    const rolls = [...Array(count)].map(
+        () => Math.floor(Math.random() * sides) + 1
+    );
+    const hasCritSuccess = Boolean(rolls.find((roll) => roll === sides));
+    const hasCritFailure = Boolean(rolls.find((roll) => roll === 1));
+    const critStatus = getCritStatus(hasCritSuccess, hasCritFailure);
+    return {
+        result: `(${rolls.join(' + ')})`,
+        state: { rolls, critStatus },
     };
 };
 
@@ -105,33 +144,80 @@ const buildExpressionNode = (children: ParseNode[]): ExpressionNode => {
     return {
         type: NodeType.Expression,
         children,
-        render: (queryValues: QueryValues) => {
-            const renderedChildren = children
-                .map((child: ParseNode, i: number) => child.render(queryValues))
-                .join('');
-            return (
-                <Tooltip
-                    disableFocusListener={true}
-                    placement="top"
-                    title={renderedChildren}
-                    enterTouchDelay={100}
+    };
+};
+
+const combineCritStatuses = (statuses: CritStatus[]) => {
+    const unique = [...new Set(statuses)];
+    if (unique.length === 0) {
+        return CritStatus.None;
+    }
+    if (unique.length === 1) {
+        return unique[0];
+    }
+    if (unique.length === 2) {
+        const withoutNone = unique.filter(
+            (status) => status !== CritStatus.None
+        );
+        if (withoutNone.length === 1) {
+            return withoutNone[0];
+        }
+    }
+    return CritStatus.Mixed;
+};
+
+const getButtonColorFromCritStatus = (critStatus: CritStatus) => {
+    switch (critStatus) {
+        case CritStatus.Success:
+            return 'success';
+        case CritStatus.Failure:
+            return 'error';
+        case CritStatus.Mixed:
+            return 'secondary';
+        default:
+            return 'primary';
+    }
+};
+const renderExpressionNode = (
+    { children }: ExpressionNode,
+    queryValues: QueryValues
+): RenderResult => {
+    const renderedChildren = children.map((child: ParseNode, i: number) =>
+        renderNode(child, queryValues)
+    );
+    const renderedChildrenResult = renderedChildren
+        .map((result) => result.result)
+        .join('');
+    const critStatus = combineCritStatuses(
+        renderedChildren
+            .map((result) => result.state?.critStatus)
+            .filter((status) => status !== undefined) as CritStatus[]
+    );
+
+    return {
+        result: (
+            <Tooltip
+                disableFocusListener={true}
+                placement="top"
+                title={renderedChildrenResult}
+                enterTouchDelay={100}
+            >
+                <Button
+                    sx={{
+                        textAlign: 'start',
+                        fontSize: '1.25rem',
+                        minHeight: 0,
+                        minWidth: 0,
+                        padding: '0 0.25rem',
+                        lineHeight: '1.5rem',
+                    }}
+                    variant="outlined"
+                    color={getButtonColorFromCritStatus(critStatus)}
                 >
-                    <Button
-                        sx={{
-                            textAlign: 'start',
-                            fontSize: '1.25rem',
-                            minHeight: 0,
-                            minWidth: 0,
-                            padding: '0 0.25rem',
-                            lineHeight: '1.5rem',
-                        }}
-                        variant="outlined"
-                    >
-                        {evaluate(renderedChildren)}
-                    </Button>
-                </Tooltip>
-            );
-        },
+                    {evaluate(renderedChildrenResult)}
+                </Button>
+            </Tooltip>
+        ),
     };
 };
 
@@ -140,9 +226,27 @@ const buildQueryNode = (queryId: string, defaultValue: number): QueryNode => {
         type: NodeType.Query,
         queryId,
         defaultValue,
-        render: (queryValues: QueryValues) =>
-            queryValues[queryId] ?? defaultValue,
     };
+};
+
+const renderQueryNode = (
+    { queryId, defaultValue }: QueryNode,
+    queryValues: QueryValues
+): RenderResult => {
+    return { result: queryValues[queryId] ?? defaultValue };
+};
+
+const renderNode = (node: ParseNode, queryValues: QueryValues) => {
+    switch (node.type) {
+        case NodeType.Text:
+            return renderTextNode(node);
+        case NodeType.Dice:
+            return renderDiceNode(node);
+        case NodeType.Expression:
+            return renderExpressionNode(node, queryValues);
+        case NodeType.Query:
+            return renderQueryNode(node, queryValues);
+    }
 };
 
 const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
@@ -156,9 +260,7 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
             case TokenType.Dice:
                 if (parentNodeType !== NodeType.Expression) {
                     throw Error(
-                        `Parse error, dice expression with invalid parent node type: ${
-                            parentNodeType ?? 'None'
-                        }`
+                        `Invalid macro, dice expression found outside expression tag`
                     );
                 }
                 if (!currentToken.groups?.sides) {
@@ -173,9 +275,7 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
             case TokenType.Query:
                 if (parentNodeType !== NodeType.Expression) {
                     throw Error(
-                        `Parse error, query expression with invalid parent node type: ${
-                            parentNodeType ?? 'None'
-                        }`
+                        `Invalid macro, query expression found outside expression tag`
                     );
                 }
                 if (!currentToken.groups?.queryId) {
@@ -196,7 +296,7 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
             case TokenType.EndExpression:
                 if (parentNodeType !== NodeType.Expression) {
                     throw Error(
-                        `Parse error, close expression tag without corresponding open tag`
+                        `Invalid macro, close expression tag without corresponding open tag`
                     );
                 }
                 return result;
@@ -206,7 +306,9 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
         currentToken = tokenQueue.shift();
     }
     if (parentNodeType === NodeType.Expression) {
-        throw Error(`Parse error, unclosed expression tag`);
+        throw Error(
+            `Invalid macro, open expression tag without corresponding close tag`
+        );
     }
     return result;
 };
@@ -225,7 +327,7 @@ const renderCompiledMacro = (nodes: ParseNode[], queryValues: QueryValues) => {
         <React.Fragment>
             {nodes.map((node: ParseNode, i: number) => (
                 <React.Fragment key={i}>
-                    {node.render(queryValues)}
+                    {renderNode(node, queryValues).result}
                 </React.Fragment>
             ))}
         </React.Fragment>

@@ -16,6 +16,7 @@ describe('parseMacro', () => {
             name: 'test',
             content: 'Hello, [[6*9]] World! [[42]]',
             queries: {},
+            compiledMacro: [],
         };
         expect(parseMacro(macro)).toEqual('Hello, 54 World! 42');
     });
@@ -34,6 +35,7 @@ describe('parseMacro', () => {
                 name: 'test',
                 content: macroContent,
                 queries: {},
+                compiledMacro: [],
             };
             expect(parseMacro(macro)).toEqual(expected);
         }
@@ -53,6 +55,7 @@ describe('parseMacro', () => {
                 name: 'test',
                 content: macroContent,
                 queries: {},
+                compiledMacro: [],
             };
             expect(parseMacro(macro)).toEqual(expected);
         }
@@ -67,6 +70,7 @@ describe('parseMacro', () => {
             name: 'test',
             content: 'Hello, ?{atk|5} World! [[d6 + ?{atk}]]',
             queries: queryValues,
+            compiledMacro: [],
         };
         expect(parseMacro(macro)).toEqual('Hello, 10 World! 14');
     });

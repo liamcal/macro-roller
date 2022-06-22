@@ -34,6 +34,7 @@ const MacroList = () => {
                             <IconButton
                                 component={RouterLink}
                                 to={`macro/${macro.macroId}/edit`}
+                                state={{ back: '/' }}
                                 edge="end"
                                 aria-label="edit"
                             >
@@ -47,6 +48,7 @@ const MacroList = () => {
                             role="button"
                             component={RouterLink}
                             to={`macro/${macro.macroId}`}
+                            state={{ back: '/' }}
                         >
                             <ListItemText id={labelId} primary={macro.name} />
                         </ListItemButton>
@@ -57,7 +59,11 @@ const MacroList = () => {
     ) : (
         <p>
             You don't have any macros yet, let's{' '}
-            <Link component={RouterLink} to="macro/create">
+            <Link
+                component={RouterLink}
+                to="macro/create"
+                state={{ back: '/' }}
+            >
                 create one!
             </Link>
         </p>
