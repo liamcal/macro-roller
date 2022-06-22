@@ -11,9 +11,13 @@ const AppRoutes = () => {
             <Route path="/">
                 <Route index={true} element={<Home />} />
                 <Route path="roll" element={<MacroRoller />} />
-                <Route path="macro/create" element={<CreateMacro />} />
-                <Route path="macro/:macroId" element={<ViewMacro />} />
-                <Route path="macro/:macroId/edit" element={<EditMacro />} />
+                <Route path="macro">
+                    <Route path="create" element={<CreateMacro />} />
+                    <Route path=":macroId">
+                        <Route index={true} element={<ViewMacro />} />
+                        <Route path="edit" element={<EditMacro />} />
+                    </Route>
+                </Route>
             </Route>
         </Routes>
     );

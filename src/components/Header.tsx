@@ -4,9 +4,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Header = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    console.log({ location });
-    const isHome = location.pathname === '/';
+    const { pathname, state } = useLocation();
+    const backLink = (state as { back?: string })?.back ?? '/';
+    const isHome = pathname === '/';
 
     return (
         <header
@@ -26,7 +26,10 @@ const Header = () => {
                 }}
             >
                 {!isHome && (
-                    <IconButton aria-label="home" onClick={() => navigate(-1)}>
+                    <IconButton
+                        aria-label="home"
+                        onClick={() => navigate(backLink, { replace: true })}
+                    >
                         <ArrowBackIcon fontSize="inherit" />
                     </IconButton>
                 )}
