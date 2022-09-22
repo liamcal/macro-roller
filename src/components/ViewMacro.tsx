@@ -111,7 +111,7 @@ const ViewMacro = () => {
                             align="left"
                             sx={{
                                 fontSize: '1rem',
-                                whiteSpace: 'pre-line',
+                                whiteSpace: 'pre',
                                 maxHeight: 120,
                                 overflow: 'auto',
                             }}
@@ -142,7 +142,7 @@ const ViewMacro = () => {
                     elevation={6}
                     sx={{
                         padding: '1rem',
-                        whiteSpace: 'pre-line',
+                        whiteSpace: 'pre',
                         textAlign: 'start',
                         fontSize: '1.25rem',
                     }}
