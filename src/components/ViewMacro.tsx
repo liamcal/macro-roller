@@ -43,32 +43,44 @@ const ViewMacro = () => {
         return [];
     }, [currentMacro]);
 
-    const [parsedMacro, setParsedMacro] = useState<
-        React.ReactNode | React.ReactNode[] | null
-    >(null);
+    const [parsedMacro, setParsedMacro] = useState<React.ReactNode | null>(
+        null
+    );
 
     if (!currentMacro) {
         return null;
     }
 
-    const handleRunButtonClick = (
-        event: React.MouseEvent<HTMLButtonElement>
-    ) => {
-        setParsedMacro(
-            renderCompiledMacro(
-                compiledMacro,
-                Object.fromEntries(
-                    Object.keys(currentMacro.queries).map((queryId: string) => [
-                        queryId,
-                        parseInt(
-                            currentMacro.queries[queryId].value ||
-                                currentMacro.queries[queryId].defaultValue ||
-                                '0'
-                        ),
-                    ])
-                )
-            )
+    const getCurrentQueryValues = () => {
+        return Object.fromEntries(
+            Object.keys(currentMacro.queries).map((queryId: string) => [
+                queryId,
+                parseInt(
+                    currentMacro.queries[queryId].value ||
+                        currentMacro.queries[queryId].defaultValue ||
+                        '0'
+                ),
+            ])
         );
+    };
+
+    const populateMacroLog = (preserveLog: boolean) => {
+        setParsedMacro((previousLog) => {
+            const newLog = renderCompiledMacro(
+                compiledMacro,
+                getCurrentQueryValues()
+            );
+
+            return preserveLog ? (
+                <React.Fragment>
+                    {previousLog}
+                    <br />
+                    {newLog}
+                </React.Fragment>
+            ) : (
+                <React.Fragment>{newLog}</React.Fragment>
+            );
+        });
     };
 
     return currentMacro ? (
@@ -128,14 +140,25 @@ const ViewMacro = () => {
             <div
                 style={{
                     display: 'flex',
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
                     marginBlockEnd: '1rem',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                 }}
             >
-                <Button variant="contained" onClick={handleRunButtonClick}>
+                <Button
+                    variant="contained"
+                    onClick={() => populateMacroLog(false)}
+                >
                     Run Macro
                 </Button>
+                {parsedMacro && (
+                    <Button
+                        variant="outlined"
+                        onClick={() => populateMacroLog(true)}
+                    >
+                        Re-run
+                    </Button>
+                )}
             </div>
             {parsedMacro && (
                 <Paper
