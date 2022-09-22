@@ -33,7 +33,8 @@ const ViewMacro = () => {
                 return currentMacro.compiledMacro;
             }
             try {
-                // The compiled macro should already exist, but if it doesn't - compile it on the fly for now
+                // The compiled macro should already exist...
+                // But if it doesn't - compile it on the fly for now
                 return compileMacro(currentMacro.content);
             } catch {
                 return [];

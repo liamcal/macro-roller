@@ -68,17 +68,44 @@ const useMacros = (key: string) => {
 
         return mergedQueries;
     };
-    const updateMacroContent = (macroId: string, newContent: string) => {
+
+    const updateMacroName = (macroId: string, newName: string) => {
         const currentMacro = getMacro(macroId);
         if (currentMacro) {
-            const newQueries = extractQueries(newContent);
-            const newCompiled = compileMacro(newContent);
+            const newMacro: Macro = {
+                ...currentMacro,
+                name: newName,
+            };
+            upsertMacro(newMacro);
+        }
+    };
+
+    interface UpdateMacroByIdProps {
+        macroId: string;
+        name?: string;
+        content?: string;
+    }
+
+    const updateMacroById = ({
+        macroId,
+        name,
+        content,
+    }: UpdateMacroByIdProps) => {
+        const currentMacro = getMacro(macroId);
+        if (currentMacro) {
+            const newQueries =
+                content === undefined ? undefined : extractQueries(content);
+            const newCompiled =
+                content === undefined ? undefined : compileMacro(content);
 
             const newMacro: Macro = {
                 ...currentMacro,
-                content: newContent,
-                queries: mergeQueries(currentMacro.queries, newQueries),
-                compiledMacro: newCompiled,
+                name: name ?? currentMacro.name,
+                content: content ?? currentMacro.content,
+                queries: newQueries
+                    ? mergeQueries(currentMacro.queries, newQueries)
+                    : currentMacro.queries,
+                compiledMacro: newCompiled ?? currentMacro.compiledMacro,
             };
             upsertMacro(newMacro);
         }
@@ -115,7 +142,8 @@ const useMacros = (key: string) => {
         createMacro,
         upsertMacro,
         upsertMacroQuery,
-        updateMacroContent,
+        updateMacroName,
+        updateMacroById,
         deleteMacro,
     };
 };

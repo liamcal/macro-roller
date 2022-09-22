@@ -19,7 +19,7 @@ const EditMacro = () => {
     const { state } = useLocation();
     const backLink = (state as { back?: string })?.back ?? '/';
     const { macroId } = useParams();
-    const { macros, updateMacroContent, deleteMacro } = useMacros(
+    const { macros, updateMacroById, deleteMacro } = useMacros(
         MACROS_LOCAL_STORAGE_KEY
     );
     const currentMacro = useMemo(
@@ -36,6 +36,7 @@ const EditMacro = () => {
     const [macroContent, setMacroContent] = useState(
         currentMacro?.content ?? ''
     );
+    const [macroName, setMacroName] = useState(currentMacro?.name ?? '');
 
     if (!currentMacro) {
         return null;
@@ -49,7 +50,11 @@ const EditMacro = () => {
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            updateMacroContent(currentMacro.macroId, macroContent);
+            updateMacroById({
+                macroId: currentMacro.macroId,
+                name: macroName,
+                content: macroContent,
+            });
             navigate(backLink);
         } catch (error) {
             if (error instanceof Error) {
@@ -66,26 +71,28 @@ const EditMacro = () => {
 
     return (
         <div>
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    paddingBlockEnd: '1rem',
-                }}
-            >
-                <h2 style={{ margin: 0 }}>Editing: {currentMacro.name}</h2>
-            </div>
             <form onSubmit={handleFormSubmit}>
-                <div style={{ paddingBlockEnd: '1rem' }}>
-                    <TextField
-                        multiline={true}
-                        fullWidth={true}
-                        value={macroContent}
-                        onChange={(e) => setMacroContent(e.target.value)}
-                        minRows={5}
-                        maxRows={15}
-                    />
-                </div>
+                <TextField
+                    sx={{
+                        paddingBlockEnd: '1rem',
+                    }}
+                    fullWidth={true}
+                    value={macroName}
+                    onChange={(e) => setMacroName(e.target.value)}
+                    label="Name"
+                />
+                <TextField
+                    sx={{
+                        paddingBlockEnd: '1rem',
+                    }}
+                    multiline={true}
+                    fullWidth={true}
+                    value={macroContent}
+                    onChange={(e) => setMacroContent(e.target.value)}
+                    minRows={5}
+                    maxRows={15}
+                    label="Content"
+                />
                 <div
                     style={{
                         display: 'flex',
