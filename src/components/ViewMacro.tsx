@@ -166,6 +166,7 @@ const ViewMacro = () => {
                     sx={{
                         padding: '1rem',
                         whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                         textAlign: 'start',
                         fontSize: '1.25rem',
                     }}
