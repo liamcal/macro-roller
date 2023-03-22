@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/macro-roller/static/css/main.5672d53f.css",
-    "main.js": "/macro-roller/static/js/main.6888f385.js",
+    "main.js": "/macro-roller/static/js/main.a373635e.js",
     "static/js/787.9fdac3f3.chunk.js": "/macro-roller/static/js/787.9fdac3f3.chunk.js",
     "index.html": "/macro-roller/index.html",
     "main.5672d53f.css.map": "/macro-roller/static/css/main.5672d53f.css.map",
-    "main.6888f385.js.map": "/macro-roller/static/js/main.6888f385.js.map",
+    "main.a373635e.js.map": "/macro-roller/static/js/main.a373635e.js.map",
     "787.9fdac3f3.chunk.js.map": "/macro-roller/static/js/787.9fdac3f3.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5672d53f.css",
-    "static/js/main.6888f385.js"
+    "static/js/main.a373635e.js"
   ]
 }
