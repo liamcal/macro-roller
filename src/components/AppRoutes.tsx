@@ -1,25 +1,30 @@
+import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import MacroRoller from './MacroRoller';
-import Home from './Home';
-import CreateMacro from './CreateMacro';
-import ViewMacro from './ViewMacro';
-import EditMacro from './EditMacro';
+
+// Lazy load pages
+const Home = lazy(() => import('./Home'));
+const MacroRoller = lazy(() => import('./MacroRoller'));
+const CreateMacro = lazy(() => import('./CreateMacro'));
+const ViewMacro = lazy(() => import('./ViewMacro'));
+const EditMacro = lazy(() => import('./EditMacro'));
 
 const AppRoutes = () => {
     return (
-        <Routes>
-            <Route path="/">
-                <Route index={true} element={<Home />} />
-                <Route path="roll" element={<MacroRoller />} />
-                <Route path="macro">
-                    <Route path="create" element={<CreateMacro />} />
-                    <Route path=":macroId">
-                        <Route index={true} element={<ViewMacro />} />
-                        <Route path="edit" element={<EditMacro />} />
+        <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+                <Route path="/">
+                    <Route index={true} element={<Home />} />
+                    <Route path="roll" element={<MacroRoller />} />
+                    <Route path="macro">
+                        <Route path="create" element={<CreateMacro />} />
+                        <Route path=":macroId">
+                            <Route index={true} element={<ViewMacro />} />
+                            <Route path="edit" element={<EditMacro />} />
+                        </Route>
                     </Route>
                 </Route>
-            </Route>
-        </Routes>
+            </Routes>
+        </Suspense>
     );
 };
 
