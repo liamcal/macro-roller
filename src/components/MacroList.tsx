@@ -1,3 +1,4 @@
+import { lazyWithPreload } from 'react-lazy-with-preload';
 import {
     IconButton,
     Link,
@@ -11,6 +12,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useMacros } from '../hooks';
 import { Macro } from '../types';
 import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
+
+const EditMacro = lazyWithPreload(() => import('./EditMacro'));
+const ViewMacro = lazyWithPreload(() => import('./ViewMacro'));
 
 const MacroList = () => {
     const { macros } = useMacros(MACROS_LOCAL_STORAGE_KEY);
@@ -37,6 +41,7 @@ const MacroList = () => {
                                 state={{ back: '/' }}
                                 edge="end"
                                 aria-label="edit"
+                                onMouseOver={EditMacro.preload}
                             >
                                 <EditIcon />
                             </IconButton>
@@ -49,6 +54,7 @@ const MacroList = () => {
                             component={RouterLink}
                             to={`macro/${macro.macroId}`}
                             state={{ back: '/' }}
+                            onMouseOver={ViewMacro.preload}
                         >
                             <ListItemText id={labelId} primary={macro.name} />
                         </ListItemButton>

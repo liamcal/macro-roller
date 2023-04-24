@@ -17,6 +17,7 @@
         "mathjs": "^10.6.1",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
+        "react-lazy-with-preload": "^2.2.1",
         "react-router-dom": "^6.3.0",
         "typescript": "^4.7.3",
         "uuid": "^8.3.2",

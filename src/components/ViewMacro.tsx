@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
+import {lazyWithPreload} from 'react-lazy-with-preload';
 import {
     Accordion,
     AccordionDetails,
@@ -15,6 +16,8 @@ import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 import { useMacros } from '../hooks';
 import { compileMacro, renderCompiledMacro } from '../utils/parserUtils';
 import MacroQueryValues from './MacroQueryValues';
+
+const EditMacro = lazyWithPreload(() => import('./EditMacro'));
 
 const ViewMacro = () => {
     const { macroId } = useParams();
@@ -102,9 +105,10 @@ const ViewMacro = () => {
                             <IconButton
                                 aria-label="edit"
                                 component={RouterLink}
-                                to={`edit`}
+                                to="edit"
                                 state={{ back: `/macro/${macroId}` }}
                                 sx={{ alignSelf: 'top' }}
+                                onMouseOver={EditMacro.preload}
                             >
                                 <EditIcon />
                             </IconButton>

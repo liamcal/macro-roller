@@ -1,7 +1,10 @@
 import { Link as RouterLink } from 'react-router-dom';
+import { lazyWithPreload } from 'react-lazy-with-preload';
 import { Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MacroList from './MacroList';
+
+const CreateMacro = lazyWithPreload(() => import('./CreateMacro'));
 
 const Home = () => {
     return (
@@ -21,6 +24,7 @@ const Home = () => {
                     left: 'auto',
                     position: 'fixed',
                 }}
+                onMouseOver={CreateMacro.preload}
             >
                 <AddIcon />
             </Fab>
