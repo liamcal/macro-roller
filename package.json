@@ -23,8 +23,8 @@
         "web-vitals": "^2.1.4"
     },
     "scripts": {
-        "predeploy": "npm run build && cp ./404.html ./build",
-        "deploy": "gh-pages -d build",
+        "predeploy": "npm run build && cp ./404.html ./dist",
+        "deploy": "gh-pages -d dist",
         "start": "vite",
         "build": "tsc && vite build",
         "serve": "vite preview",
@@ -54,6 +54,7 @@
         "gh-pages": "^4.0.0",
         "jsdom": "^21.1.1",
         "vite": "^4.3.1",
+        "vite-plugin-preload": "^0.2.0",
         "vitest": "^0.30.1"
     },
     "homepage": "https://liamcal.github.io/macro-roller"
