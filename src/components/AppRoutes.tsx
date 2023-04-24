@@ -10,7 +10,7 @@ const EditMacro = lazy(() => import('./EditMacro'));
 
 const AppRoutes = () => {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense>
             <Routes>
                 <Route path="/">
                     <Route index={true} element={<Home />} />
