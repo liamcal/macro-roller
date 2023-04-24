@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { NodeType, Token, TokenType } from '../types';
 import { parseTokens, tokenize } from './parserUtils';
 
