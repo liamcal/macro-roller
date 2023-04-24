@@ -108,7 +108,6 @@ const ViewMacro = () => {
                                 to="edit"
                                 state={{ back: `/macro/${macroId}` }}
                                 sx={{ alignSelf: 'top' }}
-                                onMouseOver={EditMacro.preload}
                             >
                                 <EditIcon />
                             </IconButton>

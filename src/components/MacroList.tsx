@@ -41,7 +41,6 @@ const MacroList = () => {
                                 state={{ back: '/' }}
                                 edge="end"
                                 aria-label="edit"
-                                onMouseOver={EditMacro.preload}
                             >
                                 <EditIcon />
                             </IconButton>
@@ -54,7 +53,6 @@ const MacroList = () => {
                             component={RouterLink}
                             to={`macro/${macro.macroId}`}
                             state={{ back: '/' }}
-                            onMouseOver={ViewMacro.preload}
                         >
                             <ListItemText id={labelId} primary={macro.name} />
                         </ListItemButton>
