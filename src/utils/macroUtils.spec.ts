@@ -1,13 +1,14 @@
+import { describe, beforeEach, afterEach, it, vi, expect } from 'vitest';
 import { Macro, QueryLookup } from '../types';
 import { parseMacro } from './macroUtils';
 
 describe('parseMacro', () => {
     beforeEach(() => {
-        jest.spyOn(global.Math, 'random').mockReturnValue(0.5);
+        vi.spyOn(global.Math, 'random').mockReturnValue(0.5);
     });
 
     afterEach(() => {
-        jest.spyOn(global.Math, 'random').mockRestore();
+        vi.restoreAllMocks();
     });
 
     it('should parse basic expressions', () => {
