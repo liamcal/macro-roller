@@ -4,6 +4,7 @@ import { Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MacroList from './MacroList';
 import { useEffect } from 'react';
+import { Import } from './Import';
 
 const CreateMacro = lazyWithPreload(() => import('./CreateMacro'));
 const ViewMacro = lazyWithPreload(() => import('./ViewMacro'));
@@ -36,6 +37,7 @@ const Home = () => {
             >
                 <AddIcon />
             </Fab>
+            <Import />
         </div>
     );
 };
