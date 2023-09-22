@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Alert,
@@ -68,6 +68,11 @@ const EditMacro = () => {
         deleteMacro(currentMacro.macroId);
         navigate('/', { replace: true });
     };
+
+    useEffect(() => {
+        document.title = `${currentMacro.name} | Macro Roller`;
+    }, []);
+
 
     return (
         <div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Button,
@@ -64,6 +64,10 @@ const CreateMacro = () => {
         setMacroName(macroImport.name);
         setMacroContent(macroImport.macro);
     };
+
+    useEffect(() => {
+        document.title = `Macro Roller`;
+    }, []);
 
     return (
         <>

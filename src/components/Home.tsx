@@ -16,6 +16,10 @@ const Home = () => {
     //     EditMacro.preload();
     // }, []);
 
+    useEffect(() => {
+        document.title = `Macro Roller`;
+    }, []);
+    
     return (
         <div>
             <MacroList />
