@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, Button, Paper, TextField } from '@mui/material';
 
-interface MacroImport {
+export interface MacroImport {
     id: string;
     name: string;
     macro: string;
 }
 
-const ImportMacro = () => {
+interface ImportMacroProps {
+    onImport: (macroImport: MacroImport) => void;
+}
+
+const ImportMacro = ({ onImport }: ImportMacroProps) => {
     const [selectedMacro, setSelectedMacro] = useState<MacroImport | null>(
         null
     );
@@ -26,6 +30,14 @@ const ImportMacro = () => {
         setMacrosForImport(taggedData);
     };
 
+    const handleImportButtonClick = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        if (selectedMacro) {
+            onImport(selectedMacro);
+        }
+    };
+
     useEffect(() => {
         loadMacros();
     }, []);
@@ -33,41 +45,61 @@ const ImportMacro = () => {
     return (
         <div
             style={{
-                marginTop: '10rem',
                 display: 'flex',
                 gap: '1rem',
                 flexDirection: 'column',
             }}
         >
-            <Autocomplete
-                id="macro-import-autocomplete"
-                sx={{ width: 300 }}
-                options={macrosForImport}
-                value={selectedMacro}
-                onChange={(event, newValue) => {
-                    setSelectedMacro(newValue);
+            <div
+                style={{
+                    display: 'flex',
+                    gap: '1rem',
                 }}
-                autoHighlight
-                getOptionLabel={(option) => option.name}
-                renderInput={(params) => (
-                    <TextField {...params} label="Macro" />
-                )}
-                renderOption={(props, option) => {
-                    return (
-                        <li {...props} key={option.id}>
-                            {option.name}
-                        </li>
-                    );
-                }}
-            />
+            >
+                <Autocomplete
+                    id="macro-import-autocomplete"
+                    sx={{ width: 300 }}
+                    options={macrosForImport}
+                    value={selectedMacro}
+                    onChange={(event, newValue) => {
+                        setSelectedMacro(newValue);
+                    }}
+                    autoHighlight
+                    getOptionLabel={(option) => option.name}
+                    renderInput={(params) => (
+                        <TextField {...params} label="PF2e Creature" />
+                    )}
+                    renderOption={(props, option) => {
+                        return (
+                            <li {...props} key={option.id}>
+                                {option.name}
+                            </li>
+                        );
+                    }}
+                />
+                <Button
+                    variant="outlined"
+                    disabled={!selectedMacro}
+                    onClick={handleImportButtonClick}
+                >
+                    Import
+                </Button>
+            </div>
+
             <div>
                 {selectedMacro && (
-                    <TextField
-                        value={selectedMacro.macro}
-                        disabled={true}
-                        multiline={true}
-                        fullWidth={true}
-                    />
+                    <Paper
+                        elevation={6}
+                        sx={{
+                            padding: '1rem',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            textAlign: 'start',
+                            fontSize: '1.25rem',
+                        }}
+                    >
+                        {selectedMacro.macro}
+                    </Paper>
                 )}
             </div>
         </div>
