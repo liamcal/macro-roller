@@ -64,6 +64,13 @@ export interface Macro {
     content: string;
     queries: QueryLookup;
     compiledMacro: ParseNode[];
+    adjustment?: Adjustment;
+}
+
+export enum Adjustment {
+    None = 'None',
+    Weak = 'Weak',
+    Elite = 'Elite',
 }
 
 export interface QueryLookup {

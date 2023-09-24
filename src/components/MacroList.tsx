@@ -1,4 +1,3 @@
-import { lazyWithPreload } from 'react-lazy-with-preload';
 import {
     IconButton,
     Link,
@@ -12,9 +11,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useMacros } from '../hooks';
 import { Macro } from '../types';
 import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
-
-const EditMacro = lazyWithPreload(() => import('./EditMacro'));
-const ViewMacro = lazyWithPreload(() => import('./ViewMacro'));
 
 const MacroList = () => {
     const { macros } = useMacros(MACROS_LOCAL_STORAGE_KEY);
@@ -54,7 +50,16 @@ const MacroList = () => {
                             to={`macro/${macro.macroId}`}
                             state={{ back: '/' }}
                         >
-                            <ListItemText id={labelId} primary={macro.name} />
+                            <ListItemText
+                                id={labelId}
+                                primary={
+                                    <span>
+                                        {macro.name}
+                                        {macro.adjustment &&
+                                            ` (${macro.adjustment})`}
+                                    </span>
+                                }
+                            />
                         </ListItemButton>
                     </ListItem>
                 );

@@ -1,25 +1,15 @@
+import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { lazyWithPreload } from 'react-lazy-with-preload';
 import { Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MacroList from './MacroList';
-import { useEffect } from 'react';
-
-const CreateMacro = lazyWithPreload(() => import('./CreateMacro'));
-const ViewMacro = lazyWithPreload(() => import('./ViewMacro'));
-const EditMacro = lazyWithPreload(() => import('./EditMacro'));
 
 const Home = () => {
-    // useEffect(() => {
-    //     CreateMacro.preload();
-    //     ViewMacro.preload();
-    //     EditMacro.preload();
-    // }, []);
 
     useEffect(() => {
         document.title = `Macro Roller`;
     }, []);
-    
+
     return (
         <div>
             <MacroList />

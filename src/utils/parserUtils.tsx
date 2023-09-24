@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Tooltip } from '@mui/material';
 import { evaluate } from 'mathjs';
 import {
+    Adjustment,
     DiceNode,
     ExpressionNode,
     NodeType,
@@ -191,16 +192,31 @@ const getButtonColorFromCritStatus = (critStatus: CritStatus) => {
             return 'primary';
     }
 };
+
+const getAdjustmentText = (adjustment: Adjustment) => {
+    switch (adjustment) {
+        case Adjustment.Elite:
+            return '+2';
+        case Adjustment.Weak:
+            return '-2';
+        default:
+            return '';
+    }
+};
+
 const renderExpressionNode = (
     { children }: ExpressionNode,
-    queryValues: QueryValues
+    queryValues: QueryValues,
+    adjustment: Adjustment = Adjustment.None
 ): RenderResult => {
     const renderedChildren = children.map((child: ParseNode, i: number) =>
         renderNode(child, queryValues)
     );
     const renderedChildrenResult = renderedChildren
         .map((result) => result.result)
-        .join('');
+        .join('')
+        .concat(getAdjustmentText(adjustment));
+
     const critStatus = combineCritStatuses(
         renderedChildren
             .map((result) => result.state?.critStatus)
@@ -249,14 +265,18 @@ const renderQueryNode = (
     return { result: queryValues[queryId] ?? defaultValue };
 };
 
-const renderNode = (node: ParseNode, queryValues: QueryValues) => {
+const renderNode = (
+    node: ParseNode,
+    queryValues: QueryValues,
+    adjustment: Adjustment = Adjustment.None
+) => {
     switch (node.type) {
         case NodeType.Text:
             return renderTextNode(node);
         case NodeType.Dice:
             return renderDiceNode(node);
         case NodeType.Expression:
-            return renderExpressionNode(node, queryValues);
+            return renderExpressionNode(node, queryValues, adjustment);
         case NodeType.Query:
             return renderQueryNode(node, queryValues);
     }
@@ -345,12 +365,16 @@ const compileMacro = (macroContent: string) => {
     return parseTokens(tokenize(macroContent));
 };
 
-const renderCompiledMacro = (nodes: ParseNode[], queryValues: QueryValues) => {
+const renderCompiledMacro = (
+    nodes: ParseNode[],
+    queryValues: QueryValues,
+    adjustment: Adjustment = Adjustment.None
+) => {
     return (
         <React.Fragment>
             {nodes.map((node: ParseNode, i: number) => (
                 <React.Fragment key={i}>
-                    {renderNode(node, queryValues).result}
+                    {renderNode(node, queryValues, adjustment).result}
                 </React.Fragment>
             ))}
         </React.Fragment>

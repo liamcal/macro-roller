@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import {lazyWithPreload} from 'react-lazy-with-preload';
+import { lazyWithPreload } from 'react-lazy-with-preload';
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     Button,
+    FormControlLabel,
     IconButton,
     Paper,
+    Switch,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -16,12 +20,15 @@ import { MACROS_LOCAL_STORAGE_KEY } from '../constants';
 import { useMacros } from '../hooks';
 import { compileMacro, renderCompiledMacro } from '../utils/parserUtils';
 import MacroQueryValues from './MacroQueryValues';
+import { Adjustment } from '../types';
 
 const EditMacro = lazyWithPreload(() => import('./EditMacro'));
 
 const ViewMacro = () => {
     const { macroId } = useParams();
-    const { macros, upsertMacroQuery } = useMacros(MACROS_LOCAL_STORAGE_KEY);
+    const { macros, upsertMacro, upsertMacroQuery } = useMacros(
+        MACROS_LOCAL_STORAGE_KEY
+    );
     const currentMacro = useMemo(
         () =>
             macroId
@@ -50,6 +57,8 @@ const ViewMacro = () => {
         null
     );
 
+    const [isAppendMode, setIsAppendMode] = useState(false);
+
     if (!currentMacro) {
         return null;
     }
@@ -71,10 +80,11 @@ const ViewMacro = () => {
         setParsedMacro((previousLog) => {
             const newLog = renderCompiledMacro(
                 compiledMacro,
-                getCurrentQueryValues()
+                getCurrentQueryValues(),
+                currentMacro.adjustment
             );
 
-            return preserveLog ? (
+            return preserveLog && previousLog ? (
                 <React.Fragment>
                     {previousLog}
                     <br />
@@ -86,10 +96,24 @@ const ViewMacro = () => {
         });
     };
 
+    const handleAdjustmentClick = (
+        event: React.MouseEvent<HTMLElement>,
+        value: Adjustment | undefined
+    ) => {
+        upsertMacro({ ...currentMacro, adjustment: value });
+    };
+
+    const handleAppendChange = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        checked: boolean
+    ) => {
+        setIsAppendMode(checked);
+    };
+
     useEffect(() => {
         document.title = `${currentMacro.name} | Macro Roller`;
     }, []);
-    
+
     return currentMacro ? (
         <div>
             <div style={{ paddingBottom: '1rem' }}>
@@ -122,6 +146,8 @@ const ViewMacro = () => {
                                 }}
                             >
                                 {currentMacro.name}
+                                {currentMacro.adjustment &&
+                                    ` (${currentMacro.adjustment})`}
                             </h2>
                         </div>
                     </AccordionSummary>
@@ -140,6 +166,7 @@ const ViewMacro = () => {
                     </AccordionDetails>
                 </Accordion>
             </div>
+
             <MacroQueryValues
                 macro={currentMacro}
                 upsertMacroQuery={upsertMacroQuery}
@@ -150,22 +177,45 @@ const ViewMacro = () => {
                     marginBlockEnd: '1rem',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    gap: '1rem',
                 }}
             >
                 <Button
                     variant="contained"
-                    onClick={() => populateMacroLog(false)}
+                    onClick={() => populateMacroLog(isAppendMode)}
                 >
                     Run Macro
                 </Button>
-                {parsedMacro && (
-                    <Button
-                        variant="outlined"
-                        onClick={() => populateMacroLog(true)}
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: '1rem',
+                    }}
+                >
+                    <ToggleButtonGroup
+                        value={currentMacro.adjustment}
+                        size="small"
+                        color="primary"
+                        exclusive
+                        onChange={handleAdjustmentClick}
                     >
-                        Re-run
-                    </Button>
-                )}
+                        <ToggleButton value={Adjustment.Weak} color="primary">
+                            {Adjustment.Weak}
+                        </ToggleButton>
+                        <ToggleButton value={Adjustment.Elite} color="primary">
+                            {Adjustment.Elite}
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                value={isAppendMode}
+                                onChange={handleAppendChange}
+                            />
+                        }
+                        label="Append"
+                    />
+                </div>
             </div>
             {parsedMacro && (
                 <Paper
