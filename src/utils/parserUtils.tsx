@@ -291,15 +291,14 @@ const parseInner = (tokenQueue: Token[], parentNodeType?: NodeType) => {
                 result.push(buildTextNode(currentToken.content));
                 break;
             case TokenType.Dice:
-                if (parentNodeType !== NodeType.Expression) {
-                    throw Error(
-                        `Invalid macro, dice expression found outside expression tag`
-                    );
-                }
                 if (!currentToken.groups?.sides) {
                     throw Error(
                         `Failed to parse dice expression, could not find required match value 'sides' ${currentToken.groups}`
                     );
+                }
+                if (parentNodeType !== NodeType.Expression) {
+                    result.push(buildTextNode(currentToken.content));
+                    break;
                 }
                 const count = parseInt(currentToken.groups.count || '1');
                 const sides = parseInt(currentToken.groups.sides);
