@@ -196,9 +196,9 @@ const getButtonColorFromCritStatus = (critStatus: CritStatus) => {
 const getAdjustmentText = (adjustment: Adjustment) => {
     switch (adjustment) {
         case Adjustment.Elite:
-            return '+2';
+            return ' + 2';
         case Adjustment.Weak:
-            return '-2';
+            return ' - 2';
         default:
             return '';
     }
